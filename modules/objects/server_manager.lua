@@ -85,11 +85,3 @@ function Module:getNearestObject(vec3, model, range, dimension)
 
     return closest
 end
-
-RegisterNetEvent("AquiverLib:Object:RequestData", function()
-    local source <const> = source
-
-    for k, v in pairs(Module.Entities) do
-        TriggerClientEvent("AquiverLib:Object:Create", source, v.remoteId, v.data)
-    end
-end)

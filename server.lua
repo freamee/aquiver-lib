@@ -2,6 +2,13 @@ Server = {}
 Server.Classes = {}
 Server.Managers = {}
 
+if GetResourceState("es_extended") ~= "missing" then
+    Shared.Utils:Info("ESX framework recognized.")
+    Server.ESX = exports['es_extended']:getSharedObject()
+else
+    Shared.Utils:Info("Standalone framework recognized.")
+end
+
 exports("getServer", function()
     return Server
 end)
@@ -19,8 +26,6 @@ AddEventHandler("playerDropped", function()
     local source <const> = source
     local aPlayer <const> = Server.Managers.Players:get(source)
     if not aPlayer then return end
-
-    Shared.Utils:Debug(aPlayer, true)
 
     aPlayer:destroy()
 end)

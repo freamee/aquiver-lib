@@ -64,10 +64,8 @@ end)
 Citizen.CreateThread(function()
     while true do
 
-        local playerCoords = GetEntityCoords(PlayerPedId())
-
         for k, v in pairs(Client.Managers.Objects.Entities) do
-            local dist = v.dist(playerCoords)
+            local dist = v.dist(Client.LocalPlayer.cache.playerCoords)
             if dist < 15.0 then
                 v.addStream()
             else

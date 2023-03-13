@@ -73,6 +73,10 @@ function Client.Classes.Objects(remoteId, data)
             Client.Managers.Objects.Entities[self.remoteId] = nil
         end
 
+        if DoesEntityExist(self.objectHandle) then
+            DeleteEntity(self.objectHandle)
+        end
+
         TriggerEvent("onObjectDestroyed", self)
 
         Shared.Utils:Debug("Removed object with remoteId: " .. self.remoteId)
