@@ -14,7 +14,7 @@ function Client.Classes.Objects(remoteId, data)
     self.objectHandle = nil
 
     if Client.Managers.Objects:exists(self.remoteId) then
-        Shared.Utils:Error("1Object already exists with remoteId: " .. self.remoteId)
+        Shared.Utils:Error(string.format("Object already exists. (%d, %s)", self.remoteId, self.data.model))
         return
     end
 
@@ -44,8 +44,8 @@ function Client.Classes.Objects(remoteId, data)
             Citizen.Wait(100)
         end
 
-        local obj = CreateObjectNoOffset(modelHash, self:getVector3Position(), false, false, false)
-        SetEntityRotation(obj, self:getVector3Rotation(), 2, false)
+        local obj = CreateObjectNoOffset(modelHash, self.getVector3Position(), false, false, false)
+        SetEntityRotation(obj, self.getVector3Rotation(), 2, false)
         FreezeEntityPosition(obj, true)
         self.objectHandle = obj
 
@@ -79,12 +79,12 @@ function Client.Classes.Objects(remoteId, data)
 
         TriggerEvent("onObjectDestroyed", self)
 
-        Shared.Utils:Debug("Removed object with remoteId: " .. self.remoteId)
+        Shared.Utils:Debug(string.format("Removed object (%d, %s)", self.remoteId, self.data.model))
     end
 
     Client.Managers.Objects.Entities[self.remoteId] = self
 
-    Shared.Utils:Debug("Created new object with remoteId: " .. self.remoteId)
+    Shared.Utils:Debug(string.format("Created new object (%d, %s)", self.remoteId, self.data.model))
 
     return self
 end

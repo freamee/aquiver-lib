@@ -25,7 +25,7 @@ function Server.Classes.Objects(data)
     remoteIdCounter += 1
 
     if Server.Managers.Objects:exists(self.remoteId) then
-        Shared.Utils:Error("1Object already exists with remoteId: " .. self.remoteId)
+        Shared.Utils:Error(string.format("Object already exists. (%d, %s)", self.remoteId, self.data.model))
         return
     end
 
@@ -116,14 +116,16 @@ function Server.Classes.Objects(data)
         TriggerEvent("onObjectDestroyed", self)
         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
 
-        Shared.Utils.Print:Debug("Removed object with remoteId: " .. self.remoteId)
+        Shared.Utils:Debug(string.format("Removed object (%d, %s)", self.remoteId, self.data.model))
     end
 
     Server.Managers.Objects.Entities[self.remoteId] = self
 
     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
 
-    Shared.Utils:Debug("Created new object with remoteId: " .. self.remoteId)
+    TriggerEvent("onObjectCreated", self)
+
+    Shared.Utils:Debug(string.format("Created new object (%d, %s)", self.remoteId, self.data.model))
 
     return self
 end
