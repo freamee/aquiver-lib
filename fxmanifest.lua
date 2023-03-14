@@ -12,6 +12,8 @@ dependencies {
 }
 
 server_scripts {
+    'config.lua',
+    
     -- Shared contents
     'shared.lua',
     'modules/**/shared.lua',
@@ -22,6 +24,8 @@ server_scripts {
 }
 
 client_scripts {
+    'config.lua',
+
     -- Shared contents
     'shared.lua',
     'modules/**/shared.lua',
