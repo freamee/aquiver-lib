@@ -79,9 +79,9 @@ end)
 
 -- Destroy the entities when the resource is stopped.
 AddEventHandler("onResourceStop", function(resourceName)
-    if resourceName ~= GetCurrentResourceName() then return end
-
     for k, v in pairs(Client.Managers.Peds.Entities) do
-        v.destroy()
+        if v.data.resource == resourceName then
+            v.destroy()
+        end
     end
 end)

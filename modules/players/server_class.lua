@@ -33,7 +33,8 @@ function Server.Classes.Players(source)
     self.getIdentifier = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getIdentifier()
+            if not xPlayer then return end
+            return xPlayer.getIdentifier()
         else
             for _, v in pairs(GetPlayerIdentifiers(source)) do
                 if string.sub(v, 1, string.len("license:")) == "license:" then
@@ -46,7 +47,8 @@ function Server.Classes.Players(source)
     self.getGroup = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getGroup()
+            if not xPlayer then return end
+            return xPlayer.getGroup()
         else
             return "admin"
         end
@@ -55,7 +57,8 @@ function Server.Classes.Players(source)
     self.getJob = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getJob()
+            if not xPlayer then return end
+            return xPlayer.getJob()
         else
             return "police"
         end
@@ -64,7 +67,8 @@ function Server.Classes.Players(source)
     self.getName = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getName()
+            if not xPlayer then return end
+            return xPlayer.getName()
         else
             return GetPlayerName(self.source)
         end
@@ -73,7 +77,8 @@ function Server.Classes.Players(source)
     self.setMoney = function(money)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.setMoney(money)
+            if not xPlayer then return end
+            xPlayer.setMoney(money)
         else
 
         end
@@ -82,7 +87,8 @@ function Server.Classes.Players(source)
     self.getMoney = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getMoney()
+            if not xPlayer then return end
+            return xPlayer.getMoney()
         else
 
         end
@@ -92,7 +98,8 @@ function Server.Classes.Players(source)
     self.addMoney = function(amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.addMoney(amount)
+            if not xPlayer then return end
+            xPlayer.addMoney(amount)
         else
 
         end
@@ -102,7 +109,8 @@ function Server.Classes.Players(source)
     self.removeMoney = function(amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.removeMoney(amount)
+            if not xPlayer then return end
+            xPlayer.removeMoney(amount)
         else
 
         end
@@ -112,7 +120,8 @@ function Server.Classes.Players(source)
     self.getAccount = function(accountName)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getAccount(accountName)
+            if not xPlayer then return end
+            return xPlayer.getAccount(accountName)
         else
 
         end
@@ -123,7 +132,8 @@ function Server.Classes.Players(source)
     self.addAccountMoney = function(accountName, amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.addAccountMoney(accountName, amount)
+            if not xPlayer then return end
+            xPlayer.addAccountMoney(accountName, amount)
         else
 
         end
@@ -134,7 +144,8 @@ function Server.Classes.Players(source)
     self.removeAccountMoney = function(accountName, amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.removeAccountMoney(accountName, amount)
+            if not xPlayer then return end
+            xPlayer.removeAccountMoney(accountName, amount)
         else
 
         end
@@ -144,7 +155,8 @@ function Server.Classes.Players(source)
 	self.getInventoryItem = function(name)
 		if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            return (xPlayer) and xPlayer.getInventoryItem(name)
+            if not xPlayer then return end
+            return xPlayer.getInventoryItem(name)
         else
 
         end
@@ -155,7 +167,8 @@ function Server.Classes.Players(source)
     self.addInventoryItem = function(name, amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.addInventoryItem(name, amount)
+            if not xPlayer then return end
+            xPlayer.addInventoryItem(name, amount)
         else
 
         end
@@ -166,7 +179,8 @@ function Server.Classes.Players(source)
     self.removeInventoryItem = function(name, amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.removeInventoryItem(name, amount)
+            if not xPlayer then return end
+            xPlayer.removeInventoryItem(name, amount)
         else
 
         end
@@ -177,7 +191,8 @@ function Server.Classes.Players(source)
     self.setInventoryItem = function(name, amount)
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
-            (xPlayer) and xPlayer.setInventoryItem(name, amount)
+            if not xPlayer then return end
+            xPlayer.setInventoryItem(name, amount)
         else
 
         end

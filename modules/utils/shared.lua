@@ -49,3 +49,11 @@ end
 function Module:GetResourceName()
     return GetInvokingResource() or GetCurrentResourceName()
 end
+
+--- Dereferencing a value. (probably item)
+---@generic T
+---@param a T
+---@return T
+function Module:dereference(a)
+    return json.decode(json.encode(a))
+end

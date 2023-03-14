@@ -11,6 +11,7 @@ local remoteIdCounter = 1
 ---@field rz number
 ---@field variables table
 ---@field dimension number
+---@field resource? string
 
 ---@param data ISqlObject
 function Server.Classes.Objects(data)
@@ -20,6 +21,7 @@ function Server.Classes.Objects(data)
     local self = {}
 
     self.data = data
+    self.data.resource = Shared.Utils:GetResourceName()
     self.remoteId = remoteIdCounter
 
     remoteIdCounter += 1

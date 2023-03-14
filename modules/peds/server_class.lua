@@ -13,6 +13,7 @@ local remoteIdCounter = 1
 ---@field animFlag? number
 ---@field questionMark? boolean
 ---@field name? string
+---@field resource? string
 
 ---@param data IPed
 function Server.Classes.Peds(data)
@@ -22,6 +23,7 @@ function Server.Classes.Peds(data)
     local self = {}
 
     self.data = data
+    self.data.resource = Shared.Utils:GetResourceName()
     self.remoteId = remoteIdCounter
 
     remoteIdCounter += 1

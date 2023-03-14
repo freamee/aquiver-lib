@@ -4,7 +4,7 @@ end)
 RegisterNetEvent("AquiverLib:Object:Destroy", function(remoteId)
     local aObject = Client.Managers.Objects:atRemoteId(remoteId)
     if not aObject then return end
-    aObject.destroy()    
+    aObject.destroy()
 end)
 RegisterNetEvent("AquiverLib:Object:Update:Position", function(remoteId, x, y, z)
     local aObject = Client.Managers.Objects:atRemoteId(remoteId)
@@ -79,9 +79,9 @@ end)
 
 -- Destroy the objects when the resource is stopped.
 AddEventHandler("onResourceStop", function(resourceName)
-    if resourceName ~= GetCurrentResourceName() then return end
-
     for k, v in pairs(Client.Managers.Objects.Entities) do
-        v.destroy()
+        if v.data.resource == resourceName then
+            v.destroy()
+        end
     end
 end)
