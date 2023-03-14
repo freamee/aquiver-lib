@@ -17,6 +17,16 @@ function Module:cacheNow()
     self.cache.playerHeading = GetEntityHeading(self.cache.playerPed)
 end
 
+---@param type "error" | "success" | "info" | "warning"
+---@param message string
+function Module:notification(type, message)
+    SendCefMessage({
+        event = "SEND_NOTIFICATION",
+        type = type,
+        message = message
+    })
+end
+
 Module:cacheNow()
 
 Citizen.CreateThread(function()

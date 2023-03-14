@@ -3,13 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
-import { AxiosInstance } from './plugins/axios.plugin';
 import NotificationComponent from './components/NotificationComponent.vue';
-
-onMounted(() => {
-    AxiosInstance.post("CEF_LOADED");
-});
 
 </script>
 

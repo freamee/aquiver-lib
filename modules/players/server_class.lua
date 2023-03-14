@@ -17,6 +17,10 @@ function Server.Classes.Players(source)
         return
     end
 
+    self.sendCefMessage = function(ctx)
+        TriggerClientEvent("SEND_CEF_MESSAGE", self.source, ctx)
+    end
+
     self.getVar = function(key)
         return type(self.variables[key]) ~= "nil" and self.variables[key] or nil
     end
@@ -28,6 +32,16 @@ function Server.Classes.Players(source)
 
         TriggerClientEvent("onPlayerVariableChange", self.source, key, value)
         TriggerEvent("onPlayerVariableChange", self, key, value)
+    end
+
+    ---@param type "error" | "success" | "info" | "warning"
+    ---@param message string
+    self.notification = function(type, message)
+        self.sendCefMessage({
+            event = "SEND_NOTIFICATION",
+            message = message,
+            type = type
+        })
     end
 
     self.getIdentifier = function()
