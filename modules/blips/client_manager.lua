@@ -5,17 +5,17 @@ Module.Entities = {}
 Client.Managers.Blips = Module
 
 ---@param remoteId number
-function Module:exists(remoteId)
-    return self.Entities[remoteId] and true or false
+function Module.exists(remoteId)
+    return Module.Entities[remoteId] and true or false
 end
 
 ---@param remoteId number
-function Module:atRemoteId(remoteId)
-    return self.Entities[remoteId] or nil
+function Module.atRemoteId(remoteId)
+    return Module.Entities[remoteId] or nil
 end
 
-function Module:atHandle(handleId)
-    for k, v in pairs(self.Entities) do
+function Module.atHandle(handleId)
+    for k, v in pairs(Module.Entities) do
         if v.blipHandle == handleId then
             return v
         end

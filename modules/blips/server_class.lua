@@ -25,8 +25,8 @@ function Server.Classes.Blips(data)
 
     remoteIdCounter += 1
 
-    if Server.Managers.Blips:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Blip already exists. (%d, %s)", self.remoteId))
+    if Server.Managers.Blips.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Blip already exists. (%d, %s)", self.remoteId))
         return
     end
 
@@ -38,14 +38,14 @@ function Server.Classes.Blips(data)
     end
 
     self.destroy = function()
-        if Server.Managers.Blips:exists(self.remoteId) then
+        if Server.Managers.Blips.exists(self.remoteId) then
             Server.Managers.Blips.Entities[self.remoteId] = nil
         end
 
         TriggerEvent("onBlipDestroyed", self)
         TriggerClientEvent("AquiverLib:Blip:Destroy", -1, self.remoteId)
 
-        Shared.Utils:Debug(string.format("Removed blip (%d)", self.remoteId))
+        Shared.Utils.Debug(string.format("Removed blip (%d)", self.remoteId))
     end
 
     ---@param colorId number
@@ -69,7 +69,7 @@ function Server.Classes.Blips(data)
 
     TriggerEvent("onBlipCreated", self)
 
-    Shared.Utils:Debug(string.format("Created new blip (%d)", self.remoteId))
+    Shared.Utils.Debug(string.format("Created new blip (%d)", self.remoteId))
 
     return self
 end

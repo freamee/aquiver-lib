@@ -26,8 +26,8 @@ function Server.Classes.Objects(data)
 
     remoteIdCounter += 1
 
-    if Server.Managers.Objects:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Object already exists. (%d, %s)", self.remoteId, self.data.model))
+    if Server.Managers.Objects.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Object already exists. (%d, %s)", self.remoteId, self.data.model))
         return
     end
 
@@ -61,6 +61,17 @@ function Server.Classes.Objects(data)
         )
 
         TriggerEvent("onObjectVariableChange", self, key, value)
+
+        -- // TODO: Performance increase here with some timeout.
+        if type(self.data.id) == "number" then
+            exports["oxmysql"]:prepare([[
+                UPDATE avp_lib_objects SET variables = ? WHERE id = ?
+            ]],
+            {
+                json.encode(self.data.variables),
+                self.data.id
+            })
+        end
     end
 
     ---@param vec3 vector3
@@ -78,6 +89,18 @@ function Server.Classes.Objects(data)
             self.data.y,
             self.data.z
         )
+
+        if type(self.data.id) == "number" then
+            exports["oxmysql"]:prepare([[
+                UPDATE avp_lib_objects SET x = ?, y = ?, z = ? WHERE id = ?
+            ]],
+            {
+                self.data.x,
+                self.data.y,
+                self.data.z,
+                self.data.id
+            })
+        end
     end
 
     ---@param vec3 vector3
@@ -95,6 +118,18 @@ function Server.Classes.Objects(data)
             self.data.ry,
             self.data.rz
         )
+
+        if type(self.data.id) == "number" then
+            exports["oxmysql"]:prepare([[
+                UPDATE avp_lib_objects SET rx = ?, ry = ?, rz = ? WHERE id = ?
+            ]],
+            {
+                self.data.rx,
+                self.data.ry,
+                self.data.rz,
+                self.data.id
+            })
+        end
     end
 
     ---@param newModel string
@@ -108,17 +143,27 @@ function Server.Classes.Objects(data)
             self.remoteId,
             self.data.model
         )
+
+        if type(self.data.id) == "number" then
+            exports["oxmysql"]:prepare([[
+                UPDATE avp_lib_objects SET model = ? WHERE id = ?
+            ]],
+            {
+                self.data.model,
+                self.data.id
+            })
+        end
     end
 
     self.destroy = function()
-        if Server.Managers.Objects:exists(self.remoteId) then
+        if Server.Managers.Objects.exists(self.remoteId) then
             Server.Managers.Objects.Entities[self.remoteId] = nil
         end
 
         TriggerEvent("onObjectDestroyed", self)
         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
 
-        Shared.Utils:Debug(string.format("Removed object (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Removed object (%d, %s)", self.remoteId, self.data.model))
     end
 
     Server.Managers.Objects.Entities[self.remoteId] = self
@@ -127,7 +172,7 @@ function Server.Classes.Objects(data)
 
     TriggerEvent("onObjectCreated", self)
 
-    Shared.Utils:Debug(string.format("Created new object (%d, %s)", self.remoteId, self.data.model))
+    Shared.Utils.Debug(string.format("Created new object (%d, %s)", self.remoteId, self.data.model))
 
     return self
 end

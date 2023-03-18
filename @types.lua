@@ -2,3 +2,10 @@
 ---@field x number
 ---@field y number
 ---@field z number
+
+---@class IHelp
+---@field uid string
+---@field msg string
+---@field key? string
+---@field image? string
+---@field icon? string

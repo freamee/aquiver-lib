@@ -8,7 +8,7 @@ Server.Utils = Module
 ---@param oX number
 ---@param oY number
 ---@param oZ number
-function Module:GetOffsetFromVector3(vec3, heading, oX, oY, oZ)
+function Module.GetOffsetFromVector3(vec3, heading, oX, oY, oZ)
     local newPos = {
         x = vec3.x,
         y = vec3.y,

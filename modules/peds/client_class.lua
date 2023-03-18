@@ -13,8 +13,8 @@ function Client.Classes.Peds(remoteId, data)
     self.isStreamed = false
     self.pedHandle = nil
 
-    if Client.Managers.Peds:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Ped already exists. (%d, %s)", self.remoteId, self.data.model))
+    if Client.Managers.Peds.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Ped already exists. (%d, %s)", self.remoteId, self.data.model))
         return
     end
 
@@ -63,7 +63,7 @@ function Client.Classes.Peds(remoteId, data)
     
         self.pedHandle = ped
       
-        Shared.Utils:Debug(string.format("Ped streamed in (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Ped streamed in (%d, %s)", self.remoteId, self.data.model))
     
         -- if self.data.questionMark or self.data.name then
         --     Citizen.CreateThread(function()
@@ -118,11 +118,11 @@ function Client.Classes.Peds(remoteId, data)
             DeleteEntity(self.pedHandle)
         end
     
-        Shared.Utils:Debug(string.format("Ped streamed out (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Ped streamed out (%d, %s)", self.remoteId, self.data.model))
     end
 
     self.destroy = function()
-        if Client.Managers.Peds:exists(self.remoteId) then
+        if Client.Managers.Peds.exists(self.remoteId) then
             Client.Managers.Peds.Entities[self.remoteId] = nil
         end
 
@@ -132,12 +132,12 @@ function Client.Classes.Peds(remoteId, data)
 
         TriggerEvent("onPedDestroyed", self)
 
-        Shared.Utils:Debug(string.format("Removed ped (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Removed ped (%d, %s)", self.remoteId, self.data.model))
     end
 
     Client.Managers.Peds.Entities[self.remoteId] = self
 
-    Shared.Utils:Debug(string.format("Created new ped (%d, %s)", self.remoteId, self.data.model))
+    Shared.Utils.Debug(string.format("Created new ped (%d, %s)", self.remoteId, self.data.model))
 
     return self
 end

@@ -23,8 +23,8 @@ function Server.Classes.Actionshapes(data)
 
     remoteIdCounter += 1
 
-    if Server.Managers.Actionshapes:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Actionshape already exists. (%d, %s)", self.remoteId))
+    if Server.Managers.Actionshapes.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Actionshape already exists. (%d, %s)", self.remoteId))
         return
     end
 
@@ -36,14 +36,14 @@ function Server.Classes.Actionshapes(data)
     end
 
     self.destroy = function()
-        if Server.Managers.Actionshapes:exists(self.remoteId) then
+        if Server.Managers.Actionshapes.exists(self.remoteId) then
             Server.Managers.Actionshapes.Entities[self.remoteId] = nil
         end
 
         TriggerEvent("onActionshapeDestroyed", self)
         TriggerClientEvent("AquiverLib:Actionshape:Destroy", -1, self.remoteId)
 
-        Shared.Utils:Debug(string.format("Removed actionshape (%d)", self.remoteId))
+        Shared.Utils.Debug(string.format("Removed actionshape (%d)", self.remoteId))
     end
 
     self.__init__()
@@ -54,7 +54,7 @@ function Server.Classes.Actionshapes(data)
 
     TriggerEvent("onActionshapeCreated", self)
 
-    Shared.Utils:Debug(string.format("Created new actionshape (%d)", self.remoteId))
+    Shared.Utils.Debug(string.format("Created new actionshape (%d)", self.remoteId))
 
     return self
 end

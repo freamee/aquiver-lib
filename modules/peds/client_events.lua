@@ -2,7 +2,7 @@ RegisterNetEvent("AquiverLib:Ped:Create", function(remoteId, data)
     Client.Classes.Peds(remoteId, data)
 end)
 RegisterNetEvent("AquiverLib:Ped:Destroy", function(remoteId)
-    local aEntity = Client.Managers.Peds:atRemoteId(remoteId)
+    local aEntity = Client.Managers.Peds.atRemoteId(remoteId)
     if not aEntity then return end
     aEntity.destroy()
 end)

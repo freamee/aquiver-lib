@@ -13,8 +13,8 @@ function Client.Classes.Actionshape(remoteId, data)
     self.isStreamed = false
     self.isEntered = false
 
-    if Client.Managers.Actionshapes:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Actionshape already exists. (%d)", self.remoteId))
+    if Client.Managers.Actionshapes.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Actionshape already exists. (%d)", self.remoteId))
         return
     end
 
@@ -50,11 +50,15 @@ function Client.Classes.Actionshape(remoteId, data)
 
         self.isStreamed = true
 
+        Client.Managers.Actionshapes.streamedCount += 1
+
+        Client.Managers.Actionshapes:streamingThread()
+
         if not Client.Managers.Actionshapes.Streamed[self.remoteId] then
             Client.Managers.Actionshapes.Streamed[self.remoteId] = self
         end
     
-        Shared.Utils:Debug(string.format("Actionshape streamed in (%d)", self.remoteId))
+        Shared.Utils.Debug(string.format("Actionshape streamed in (%d)", self.remoteId))
     end
 
     self.removeStream = function()
@@ -62,26 +66,32 @@ function Client.Classes.Actionshape(remoteId, data)
 
         self.isStreamed = false
 
+        Client.Managers.Actionshapes.streamedCount -= 1
+
+        Client.Managers.Actionshapes:streamingThread()
+
         if Client.Managers.Actionshapes.Streamed[self.remoteId] then
             Client.Managers.Actionshapes.Streamed[self.remoteId] = nil
         end
-    
-        Shared.Utils:Debug(string.format("Actionshape streamed out (%d)", self.remoteId))
+
+        Shared.Utils.Debug(string.format("Actionshape streamed out (%d)", self.remoteId))
     end
     
     self.destroy = function()
-        if Client.Managers.Blips:exists(self.remoteId) then
-            Client.Managers.Blips.Entities[self.remoteId] = nil
+        if Client.Managers.Actionshapes.exists(self.remoteId) then
+            Client.Managers.Actionshapes.Entities[self.remoteId] = nil
         end
+
+        self:removeStream()
 
         TriggerEvent("onActionshapeDestroyed", self)
 
-        Shared.Utils:Debug(string.format("Removed actionshape (%d)", self.remoteId))
+        Shared.Utils.Debug(string.format("Removed actionshape (%d)", self.remoteId))
     end
 
     Client.Managers.Actionshapes.Entities[self.remoteId] = self
 
-    Shared.Utils:Debug(string.format("Created new actionshape (%d)", self.remoteId))
+    Shared.Utils.Debug(string.format("Created new actionshape (%d)", self.remoteId))
 
     return self
 end

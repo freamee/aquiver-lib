@@ -1,9 +1,11 @@
 <template>
     <NotificationComponent />
+    <HelpComponent />
 </template>
 
 <script lang="ts" setup>
 import NotificationComponent from './components/NotificationComponent.vue';
+import HelpComponent from "./components/HelpComponent.vue";
 
 </script>
 

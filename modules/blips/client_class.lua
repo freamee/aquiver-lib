@@ -11,8 +11,8 @@ function Client.Classes.Blips(remoteId, data)
     self.remoteId = remoteId
     self.blipHandle = nil
 
-    if Client.Managers.Blips:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Blip already exists. (%d)", self.remoteId))
+    if Client.Managers.Blips.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Blip already exists. (%d)", self.remoteId))
         return
     end
 
@@ -37,7 +37,7 @@ function Client.Classes.Blips(remoteId, data)
     end
     
     self.destroy = function()
-        if Client.Managers.Blips:exists(self.remoteId) then
+        if Client.Managers.Blips.exists(self.remoteId) then
             Client.Managers.Blips.Entities[self.remoteId] = nil
         end
 
@@ -47,14 +47,14 @@ function Client.Classes.Blips(remoteId, data)
 
         TriggerEvent("onBlipDestroyed", self)
 
-        Shared.Utils:Debug(string.format("Removed blip (%d)", self.remoteId))
+        Shared.Utils.Debug(string.format("Removed blip (%d)", self.remoteId))
     end
 
     self.__init__()
 
     Client.Managers.Blips.Entities[self.remoteId] = self
 
-    Shared.Utils:Debug(string.format("Created new blip (%d)", self.remoteId))
+    Shared.Utils.Debug(string.format("Created new blip (%d)", self.remoteId))
 
     return self
 end

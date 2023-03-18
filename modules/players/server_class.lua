@@ -10,10 +10,9 @@ function Server.Classes.Players(source)
 
     self.source = source
     self.variables = {}
-    self.dimension = GetPlayerRoutingBucket(self.source)
 
-    if Server.Managers.Players:exists(self.source) then
-        Shared.Utils:Error("Player already exists with sourceID: " .. self.source)
+    if Server.Managers.Players.exists(self.source) then
+        Shared.Utils.Error("Player already exists with sourceID: " .. self.source)
         return
     end
 
@@ -34,14 +33,36 @@ function Server.Classes.Players(source)
         TriggerEvent("onPlayerVariableChange", self, key, value)
     end
 
+    ---@param x number
+    ---@param y number
+    ---@param z number
+    self.setPosition = function(x, y, z)
+        SetEntityCoords(GetPlayerPed(self.source), x, y, z, false, false, false, false)
+    end
+
+    ---@param dimension number
+    self.setDimension = function(dimension)
+        SetPlayerRoutingBucket(self.source, dimension)
+    end
+
+    self.getDimension = function()
+        return GetPlayerRoutingBucket(self.source)
+    end
+
     ---@param type "error" | "success" | "info" | "warning"
     ---@param message string
     self.notification = function(type, message)
-        self.sendCefMessage({
-            event = "SEND_NOTIFICATION",
-            message = message,
-            type = type
-        })
+        TriggerClientEvent("PLAYER_SEND_NOTIFICATION", self.source, type, message)
+    end
+
+    ---@param helpData IHelp
+    self.addHelp = function(helpData)
+        TriggerClientEvent("PLAYER_ADD_HELP", self.source, helpData)
+    end
+
+    ---@param uid string
+    self.removeHelp = function(uid)
+        TriggerClientEvent("PLAYER_REMOVE_HELP", self.source, uid)
     end
 
     self.getIdentifier = function()
@@ -213,16 +234,16 @@ function Server.Classes.Players(source)
     end
 
     self.destroy = function()
-        if Server.Managers.Players:exists(self.source) then
+        if Server.Managers.Players.exists(self.source) then
             Server.Managers.Players.Entities[self.source] = nil
         end
     
-        Shared.Utils:Debug("Removed player with sourceID: " .. self.source)
+        Shared.Utils.Debug("Removed player with sourceID: " .. self.source)
     end
 
     Server.Managers.Players.Entities[self.source] = self
 
-    Shared.Utils:Debug("Created new Player with sourceID: " .. self.source)
+    Shared.Utils.Debug("Created new Player with sourceID: " .. self.source)
 
     TriggerEvent("onPlayerLoaded", self)
 

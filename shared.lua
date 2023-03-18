@@ -1,3 +1,4 @@
+---@class AquiverLibShared
 Shared = {}
 
 exports("getShared", function()

@@ -1,3 +1,4 @@
+---@class AquiverLibClient
 Client = {}
 Client.Classes = {}
 Client.Managers = {}

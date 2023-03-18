@@ -5,17 +5,17 @@ Module.Entities = {}
 Client.Managers.Objects = Module
 
 ---@param remoteId number
-function Module:exists(remoteId)
-    return self.Entities[remoteId] and true or false
+function Module.exists(remoteId)
+    return Module.Entities[remoteId] and true or false
 end
 
 ---@param remoteId number
-function Module:atRemoteId(remoteId)
-    return self.Entities[remoteId] or nil
+function Module.atRemoteId(remoteId)
+    return Module.Entities[remoteId] or nil
 end
 
-function Module:atHandle(handleId)
-    for k, v in pairs(self.Entities) do
+function Module.atHandle(handleId)
+    for k, v in pairs(Module.Entities) do
         if v.objectHandle == handleId then
             return v
         end
@@ -25,12 +25,12 @@ end
 ---@param vec3 vector3
 ---@param model? string | nil
 ---@param range number
-function Module:getObjectsInRange(vec3, model, range)
+function Module.getObjectsInRange(vec3, model, range)
     local collectedObjects = {}
 
     if type(vec3) ~= "vector3" then return end
 
-    for k, v in pairs(self.Entities) do
+    for k, v in pairs(Module.Entities) do
         if model then
             if v.data.model == model then
                 local dist = v.dist(vec3)
@@ -53,13 +53,13 @@ end
 ---@param model string | string[]
 ---@param range number
 ---@param dimension number
-function Module:getNearestObject(vec3, model, range, dimension)
+function Module.getNearestObject(vec3, model, range, dimension)
     local rangeMeter = range
     local closest
 
     if type(vec3) ~= "vector3" then return end
 
-    for k, v in pairs(self.Entities) do
+    for k, v in pairs(Module.Entities) do
         if v.data.dimension == dimension then
             if model then
                 if type(model) == "table" then

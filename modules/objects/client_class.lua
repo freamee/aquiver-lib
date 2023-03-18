@@ -13,8 +13,8 @@ function Client.Classes.Objects(remoteId, data)
     self.isStreamed = false
     self.objectHandle = nil
 
-    if Client.Managers.Objects:exists(self.remoteId) then
-        Shared.Utils:Error(string.format("Object already exists. (%d, %s)", self.remoteId, self.data.model))
+    if Client.Managers.Objects.exists(self.remoteId) then
+        Shared.Utils.Error(string.format("Object already exists. (%d, %s)", self.remoteId, self.data.model))
         return
     end
 
@@ -51,7 +51,7 @@ function Client.Classes.Objects(remoteId, data)
 
         TriggerEvent("onObjectStreamedIn", self)
 
-        Shared.Utils:Debug(string.format("Object streamed in (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Object streamed in (%d, %s)", self.remoteId, self.data.model))
     end
 
     self.removeStream = function()
@@ -65,11 +65,11 @@ function Client.Classes.Objects(remoteId, data)
 
         TriggerEvent("onObjectStreamedOut", self)
 
-        Shared.Utils:Debug(string.format("Object streamed out (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Object streamed out (%d, %s)", self.remoteId, self.data.model))
     end
 
     self.destroy = function()
-        if Client.Managers.Objects:exists(self.remoteId) then
+        if Client.Managers.Objects.exists(self.remoteId) then
             Client.Managers.Objects.Entities[self.remoteId] = nil
         end
 
@@ -79,12 +79,12 @@ function Client.Classes.Objects(remoteId, data)
 
         TriggerEvent("onObjectDestroyed", self)
 
-        Shared.Utils:Debug(string.format("Removed object (%d, %s)", self.remoteId, self.data.model))
+        Shared.Utils.Debug(string.format("Removed object (%d, %s)", self.remoteId, self.data.model))
     end
 
     Client.Managers.Objects.Entities[self.remoteId] = self
 
-    Shared.Utils:Debug(string.format("Created new object (%d, %s)", self.remoteId, self.data.model))
+    Shared.Utils.Debug(string.format("Created new object (%d, %s)", self.remoteId, self.data.model))
 
     return self
 end

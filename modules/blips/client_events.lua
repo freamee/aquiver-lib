@@ -2,12 +2,12 @@ RegisterNetEvent("AquiverLib:Blip:Create", function(remoteId, data)
     Client.Classes.Blips(remoteId, data)
 end)
 RegisterNetEvent("AquiverLib:Blip:Destroy", function(remoteId)
-    local aBlip = Client.Managers.Blips:atRemoteId(remoteId)
+    local aBlip = Client.Managers.Blips.atRemoteId(remoteId)
     if not aBlip then return end
     aBlip.destroy()
 end)
 RegisterNetEvent("AquiverLib:Blip:Update:Color", function(remoteId, colorId)
-    local aBlip = Client.Managers.Blips:atRemoteId(remoteId)
+    local aBlip = Client.Managers.Blips.atRemoteId(remoteId)
     if not aBlip then return end
 
     aBlip.data.color = colorId
@@ -17,7 +17,7 @@ RegisterNetEvent("AquiverLib:Blip:Update:Color", function(remoteId, colorId)
     end
 end)
 RegisterNetEvent("AquiverLib:Blip:Update:Position", function(remoteId, x, y, z)
-    local aBlip = Client.Managers.Blips:atRemoteId(remoteId)
+    local aBlip = Client.Managers.Blips.atRemoteId(remoteId)
     if not aBlip then return end
 
     aBlip.data.x = x

@@ -5,26 +5,26 @@ Module.Entities = {}
 Client.Managers.Peds = Module
 
 ---@param remoteId number
-function Module:exists(remoteId)
-    return self.Entities[remoteId] and true or false
+function Module.exists(remoteId)
+    return Module.Entities[remoteId] and true or false
 end
 
 ---@param remoteId number
-function Module:atRemoteId(remoteId)
-    return self.Entities[remoteId] or nil
+function Module.atRemoteId(remoteId)
+    return Module.Entities[remoteId] or nil
 end
 
 ---@param uid string
-function Module:atUid(uid)
-    for k, v in pairs(self.Entities) do
+function Module.atUid(uid)
+    for k, v in pairs(Module.Entities) do
         if v.data.uid == uid then
             return v
         end
     end
 end
 
-function Module:atHandle(handleId)
-    for k, v in pairs(self.Entities) do
+function Module.atHandle(handleId)
+    for k, v in pairs(Module.Entities) do
         if v.pedHandle == handleId then
             return v
         end

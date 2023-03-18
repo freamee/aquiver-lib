@@ -20,7 +20,8 @@ server_scripts {
 
     -- Server contents
     'server.lua',
-    'modules/**/server_*.lua'
+    'modules/**/server_*.lua',
+    'modules/**/server.lua'
 }
 
 client_scripts {
@@ -32,11 +33,13 @@ client_scripts {
 
     -- Client contents
     'client.lua',
-    'modules/**/client_*.lua'
+    'modules/**/client_*.lua',
+    'modules/**/client.lua'
 }
 
 ui_page 'html/index.html'
 
 files {
     'html/**',
+    'exports/**.lua'
 }

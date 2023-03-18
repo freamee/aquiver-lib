@@ -2,7 +2,7 @@ RegisterNetEvent("AquiverLib:Actionshape:Create", function(remoteId, data)
     Client.Classes.Actionshape(remoteId, data)
 end)
 RegisterNetEvent("AquiverLib:Actionshape:Destroy", function(remoteId)
-    local aEntity = Client.Managers.Actionshapes:atRemoteId(remoteId)
+    local aEntity = Client.Managers.Actionshapes.atRemoteId(remoteId)
     if not aEntity then return end
     aEntity.destroy()
 end)
@@ -27,29 +27,6 @@ Citizen.CreateThread(function()
         end
 
         Citizen.Wait(1000)
-    end
-end)
-
--- Drawing
-CreateThread(function()
-    while true do
-        Citizen.Wait(1000)
-
-        while #Client.Managers.Actionshapes.Streamed > 0 do
-            Citizen.Wait(1)
-            
-            for k, value in pairs(Client.Managers.Actionshapes.Streamed) do
-                DrawMarker(
-                    value.data.sprite,
-                    value.data.x, value.data.y, value.data.z - 1.0,
-                    0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0,
-                    1.0, 1.0, 1.0,
-                    value.data.color.r, value.data.color.g, value.data.color.b, value.data.color.a,
-                    false, false, 2, false, nil, nil, false
-                )
-            end
-        end
     end
 end)
 

@@ -4,9 +4,9 @@ Shared.Utils = Module
 
 ---@param content any
 ---@param toJSON? boolean
-function Module:Debug(content, toJSON)
+function Module.Debug(content, toJSON)
     local f = ""
-    f = "[" .. self:GetResourceName() .. "]" .. "->" .. " ^3"
+    f = "[" .. Module.GetResourceName() .. "]" .. "->" .. " ^3"
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -17,9 +17,9 @@ end
 
 ---@param content any
 ---@param toJSON? boolean
-function Module:Error(content, toJSON)
+function Module.Error(content, toJSON)
     local f = ""
-    f = "[" .. self:GetResourceName() .. "]" .. "->" .. " ^1"
+    f = "[" .. Module.GetResourceName() .. "]" .. "->" .. " ^1"
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -30,9 +30,9 @@ end
 
 ---@param content any
 ---@param toJSON? boolean
-function Module:Info(content, toJSON)
+function Module.Info(content, toJSON)
     local f = ""
-    f = "[" .. self:GetResourceName() .. "]" .. "->" .. " ^5"
+    f = "[" .. Module.GetResourceName() .. "]" .. "->" .. " ^5"
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -41,12 +41,12 @@ function Module:Info(content, toJSON)
     print(f)
 end
 
-function Module:RoundNumber(num, decimals)
+function Module.RoundNumber(num, decimals)
     local mult = 10 ^ (decimals or 0)
     return math.floor(num * mult + 0.5) / mult
 end
 
-function Module:GetResourceName()
+function Module.GetResourceName()
     return GetInvokingResource() or GetCurrentResourceName()
 end
 
@@ -54,6 +54,6 @@ end
 ---@generic T
 ---@param a T
 ---@return T
-function Module:dereference(a)
+function Module.dereference(a)
     return json.decode(json.encode(a))
 end

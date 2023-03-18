@@ -9,32 +9,32 @@ Module.AimedPedEntity = nil
 
 Client.Raycast = Module
 
-function Module:setEntityHandle(handleId)
+function Module.setEntityHandle(handleId)
     -- Do not trigger if its the same as before...
-    if self.currentHitHandle == handleId then return end
+    if Module.currentHitHandle == handleId then return end
 
-    self.currentHitHandle = handleId
+    Module.currentHitHandle = handleId
 
-    if self.currentHitHandle then
+    if Module.currentHitHandle then
         -- Caching the class entity itself, so we do not have to loop the table always.
-        if GetEntityType(self.currentHitHandle) == 1 then
-            local findPed = Client.Managers.Peds:atHandle(self.currentHitHandle)
+        if GetEntityType(Module.currentHitHandle) == 1 then
+            local findPed = Client.Managers.Peds.atHandle(Module.currentHitHandle)
             if findPed then
-                self.AimedPedEntity = findPed
+                Module.AimedPedEntity = findPed
                 TriggerEvent("onPedRaycast", findPed)
-                Shared.Utils:Debug(string.format("Raycast entity changed: Ped: (%d, %s)", findPed.remoteId, findPed.data.model))
+                Shared.Utils.Debug(string.format("Raycast entity changed: Ped: (%d, %s)", findPed.remoteId, findPed.data.model))
             end
-        elseif GetEntityType(self.currentHitHandle) == 3 then
-            local findObject = Client.Managers.Objects:atHandle(self.currentHitHandle)
+        elseif GetEntityType(Module.currentHitHandle) == 3 then
+            local findObject = Client.Managers.Objects.atHandle(Module.currentHitHandle)
             if findObject then
-                self.AimedObjectEntity = findObject
+                Module.AimedObjectEntity = findObject
                 TriggerEvent("onObjectRaycast", findObject)
-                Shared.Utils:Debug(string.format("Raycast entity changed: Object: (%d, %s)", findObject.remoteId, findObject.data.model))
+                Shared.Utils.Debug(string.format("Raycast entity changed: Object: (%d, %s)", findObject.remoteId, findObject.data.model))
             end
         end
 
         Citizen.CreateThread(function()
-            while self.currentHitHandle == handleId do
+            while Module.currentHitHandle == handleId do
 
                 Client.Utils:DrawSprite2D(
                     0.5,
@@ -53,21 +53,21 @@ function Module:setEntityHandle(handleId)
             end
         end)
     else
-        self.AimedObjectEntity = nil
-        self.AimedPedEntity = nil
+        Module.AimedObjectEntity = nil
+        Module.AimedPedEntity = nil
         TriggerEvent("onNullRaycast")
-        Shared.Utils:Debug("Raycast entity changed: NULL")
+        Shared.Utils.Debug("Raycast entity changed: NULL")
     end
 end
 
-function Module:enable(state)
-    if self.isEnabled == state then return end
+function Module.enable(state)
+    if Module.isEnabled == state then return end
 
-    self.isEnabled = state
+    Module.isEnabled = state
 
-    if self.isEnabled then
+    if Module.isEnabled then
         Citizen.CreateThread(function()
-            while self.isEnabled do
+            while Module.isEnabled do
 
                 local coords, normal = GetWorldCoordFromScreenCoord(0.5, 0.5)
                 local destination = coords + normal * 10
@@ -91,20 +91,20 @@ function Module:enable(state)
 
                     -- Check if Object
                     if entityType == 3 then
-                        local findObject = Client.Managers.Objects:atHandle(hitHandle)
+                        local findObject = Client.Managers.Objects.atHandle(hitHandle)
                         if findObject then
                             local dist = findObject.dist(Client.LocalPlayer.cache.playerCoords)
                             if dist < 2.5 then
-                                self:setEntityHandle(hitHandle)
+                                Module.setEntityHandle(hitHandle)
                                 goto continue
                             end
                         end
                     elseif entityType == 1 then
-                        local findPed = Client.Managers.Peds:atHandle(hitHandle)
+                        local findPed = Client.Managers.Peds.atHandle(hitHandle)
                         if findPed then
                             local dist = findPed.dist(Client.LocalPlayer.cache.playerCoords)
                             if dist < 2.5 then
-                                self:setEntityHandle(hitHandle)
+                                Module.setEntityHandle(hitHandle)
                                 goto continue
                             end
                         end
@@ -112,13 +112,13 @@ function Module:enable(state)
                 end
 
                 -- Reset here if its not continued
-                self:setEntityHandle(nil)
+                Module.setEntityHandle(nil)
 
                 ::continue::
                 Citizen.Wait(CONFIG.RAYCAST.INTERVAL)
             end
         end)
     else
-        self:setEntityHandle(nil)
+        Module.setEntityHandle(nil)
     end
 end

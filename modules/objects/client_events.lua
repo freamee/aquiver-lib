@@ -2,12 +2,12 @@ RegisterNetEvent("AquiverLib:Object:Create", function(remoteId, data)
     Client.Classes.Objects(remoteId, data)
 end)
 RegisterNetEvent("AquiverLib:Object:Destroy", function(remoteId)
-    local aObject = Client.Managers.Objects:atRemoteId(remoteId)
+    local aObject = Client.Managers.Objects.atRemoteId(remoteId)
     if not aObject then return end
     aObject.destroy()
 end)
 RegisterNetEvent("AquiverLib:Object:Update:Position", function(remoteId, x, y, z)
-    local aObject = Client.Managers.Objects:atRemoteId(remoteId)
+    local aObject = Client.Managers.Objects.atRemoteId(remoteId)
     if not aObject then return end
 
     aObject.data.x = x
@@ -19,7 +19,7 @@ RegisterNetEvent("AquiverLib:Object:Update:Position", function(remoteId, x, y, z
     end
 end)
 RegisterNetEvent("AquiverLib:Object:Update:Rotation", function(remoteId, rx, ry, rz)
-    local aObject = Client.Managers.Objects:atRemoteId(remoteId)
+    local aObject = Client.Managers.Objects.atRemoteId(remoteId)
     if not aObject then return end
 
     aObject.data.rx = rx
@@ -31,7 +31,7 @@ RegisterNetEvent("AquiverLib:Object:Update:Rotation", function(remoteId, rx, ry,
     end
 end)
 RegisterNetEvent("AquiverLib:Object:Update:Model", function(remoteId, newModel)
-    local aObject = Client.Managers.Objects:atRemoteId(remoteId)
+    local aObject = Client.Managers.Objects.atRemoteId(remoteId)
     if not aObject then return end
 
     aObject.data.model = newModel
@@ -40,7 +40,7 @@ RegisterNetEvent("AquiverLib:Object:Update:Model", function(remoteId, newModel)
     aObject.addStream()
 end)
 RegisterNetEvent("AquiverLib:Object:Update:VariableKey", function(remoteId, key, value)
-    local aObject = Client.Managers.Objects:atRemoteId(remoteId)
+    local aObject = Client.Managers.Objects.atRemoteId(remoteId)
     if not aObject then return end
 
     aObject.data.variables[key] = value
