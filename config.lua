@@ -25,14 +25,12 @@ CONFIG = {
     STREAM_INTERVALS = {
         OBJECT = 1000,
         PED = 1000,
-        PARTICLE = 1000,
         ACTIONSHAPE = 1000
     },
     -- Streaming distances
     STREAM_DISTANCES = {
         OBJECT = 100.0,
         PED = 100.0,
-        PARTICLE = 100.0,
         ACTIONSHAPE = 100.0
     }
 }

@@ -91,39 +91,39 @@ function Module.insertSQL(data)
     local insertId = exports["oxmysql"]:insert_async([[
         INSERT INTO avp_lib_objects (model, x, y, z, rx, ry, rz, dimension, resource, variables) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ]],
-    {
-        data.model,
-        data.x,
-        data.y,
-        data.y,
-        type(data.rx) == "number" and data.rx or 0.0,
-        type(data.ry) == "number" and data.ry or 0.0,
-        type(data.rz) == "number" and data.rz or 0.0,
-        type(data.dimension) == "number" and data.dimension or 0,
-        Shared.Utils:GetResourceName(),
-        type(data.variables) == "table" and json.encode(data.variables) or json.encode({})
-    })
+        {
+            data.model,
+            data.x,
+            data.y,
+            data.z,
+            type(data.rx) == "number" and data.rx or 0.0,
+            type(data.ry) == "number" and data.ry or 0.0,
+            type(data.rz) == "number" and data.rz or 0.0,
+            type(data.dimension) == "number" and data.dimension or 0,
+            data.resource,
+            type(data.variables) == "table" and json.encode(data.variables) or json.encode({})
+        })
     if type(insertId) == "number" then
         local dataResponse = exports["oxmysql"]:single_async(
             "SELECT * FROM avp_lib_objects WHERE id = ?",
             { insertId }
         )
         if dataResponse then
-            Server.Classes.Objects(dataResponse)
+            return Server.Classes.Objects(dataResponse)
         end
     end
 end
 
-function Module.loadObjectsFromSql()
+function Module.loadObjectsFromSql(resourceName)
     exports["oxmysql"]:query(
         "SELECT * FROM avp_lib_objects WHERE resource = ?",
-        { Shared.Utils:GetResourceName() }
-    ,
-    function(response)
-        if response and type(response) == "table" then
-            for i = 1, #response, 1 do
-                Server.Classes.Objects(response[i])
+        { resourceName }
+        ,
+        function(response)
+            if response and type(response) == "table" then
+                for i = 1, #response, 1 do
+                    Server.Classes.Objects(response[i])
+                end
             end
-        end
-    end)
+        end)
 end

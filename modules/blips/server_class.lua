@@ -20,7 +20,7 @@ function Server.Classes.Blips(data)
     local self = {}
 
     self.data = data
-    self.data.resource = Shared.Utils:GetResourceName()
+    self.data.resource = data.resource
     self.remoteId = remoteIdCounter
 
     remoteIdCounter += 1

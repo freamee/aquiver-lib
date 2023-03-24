@@ -6,6 +6,14 @@ RegisterNetEvent("AquiverLib:Actionshape:Destroy", function(remoteId)
     if not aEntity then return end
     aEntity.destroy()
 end)
+RegisterNetEvent("AquiverLib:Actionshape:Update:Position", function(id, x, y, z)
+    local aEntity = Client.Managers.Actionshapes.atRemoteId(id)
+    if not aEntity then return end
+
+    aEntity.data.x = x
+    aEntity.data.y = y
+    aEntity.data.z = z
+end)
 
 -- STREAMING HANDLER.
 Citizen.CreateThread(function()

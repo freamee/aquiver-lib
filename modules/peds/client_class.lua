@@ -31,6 +31,15 @@ function Client.Classes.Peds(remoteId, data)
         return #(self.getVector3Position() - vector3(vec3.x, vec3.y, vec3.z))
     end
 
+    ---@param scenarioName string
+    self.setScenario = function(scenarioName)
+        self.data.scenario = scenarioName
+
+        if self.data.scenario and DoesEntityExist(self.pedHandle) then
+            TaskStartScenarioInPlace(self.pedHandle, self.data.scenario, 0, false)
+        end
+    end
+
     self.addStream = function()
         if self.isStreamed then return end
 
@@ -62,51 +71,54 @@ function Client.Classes.Peds(remoteId, data)
         FreezeEntityPosition(ped, true)
     
         self.pedHandle = ped
+
+        -- Just reapply scenario here.
+        self.setScenario(self.data.scenario)
       
         Shared.Utils.Debug(string.format("Ped streamed in (%d, %s)", self.remoteId, self.data.model))
     
-        -- if self.data.questionMark or self.data.name then
-        --     Citizen.CreateThread(function()
-        --         while self.isStreamed do
-        --             local dist = #(Client.LocalPlayer.cache.playerCoords - self:getVector3Position())
+        if self.data.questionMark or self.data.name then
+            Citizen.CreateThread(function()
+                while self.isStreamed do
+                    local dist = #(Client.LocalPlayer.cache.playerCoords - self.getVector3Position())
     
-        --             local onScreen = false
-        --             if dist < 5.0 then
-        --                 onScreen = IsEntityOnScreen(self.pedHandle)
+                    local onScreen = false
+                    if dist < 5.0 then
+                        onScreen = IsEntityOnScreen(self.pedHandle)
     
-        --                 if self.data.questionMark then
-        --                     DrawMarker(
-        --                         32,
-        --                         self.data.position.x, self.data.position.y, self.data.position.z + 1.35,
-        --                         0, 0, 0,
-        --                         0, 0, 0,
-        --                         0.35, 0.35, 0.35,
-        --                         255, 255, 0, 200,
-        --                         true, false, 2, true, nil, nil, false
-        --                     )
-        --                 end
+                        if self.data.questionMark then
+                            DrawMarker(
+                                32,
+                                self.data.x, self.data.y, self.data.z + 1.35,
+                                0, 0, 0,
+                                0, 0, 0,
+                                0.35, 0.35, 0.35,
+                                255, 255, 0, 200,
+                                true, false, 2, true, nil, nil, false
+                            )
+                        end
     
-        --                 if self.data.name then
-        --                     Client.Utils:DrawText3D(
-        --                         self.data.position.x,
-        --                         self.data.position.y,
-        --                         self.data.position.z + 1,
-        --                         self.data.name,
-        --                         0.28
-        --                     )
-        --                 end
-        --             else
-        --                 Citizen.Wait(500)
-        --             end
+                        if self.data.name then
+                            Client.Utils:DrawText3D(
+                                self.data.x,
+                                self.data.y,
+                                self.data.z + 1,
+                                self.data.name,
+                                0.28
+                            )
+                        end
+                    else
+                        Citizen.Wait(500)
+                    end
     
-        --             if not onScreen then
-        --                 Citizen.Wait(500)
-        --             end
+                    if not onScreen then
+                        Citizen.Wait(500)
+                    end
     
-        --             Citizen.Wait(1)
-        --         end
-        --     end)
-        -- end
+                    Citizen.Wait(1)
+                end
+            end)
+        end
     end
 
     self.removeStream = function()
@@ -126,9 +138,7 @@ function Client.Classes.Peds(remoteId, data)
             Client.Managers.Peds.Entities[self.remoteId] = nil
         end
 
-        if DoesEntityExist(self.pedHandle) then
-            DeleteEntity(self.pedHandle)
-        end
+        self.removeStream()
 
         TriggerEvent("onPedDestroyed", self)
 

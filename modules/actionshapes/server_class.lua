@@ -18,7 +18,7 @@ function Server.Classes.Actionshapes(data)
     local self = {}
 
     self.data = data
-    self.data.resource = Shared.Utils:GetResourceName()
+    self.data.resource = data.resource
     self.remoteId = remoteIdCounter
 
     remoteIdCounter += 1
@@ -44,6 +44,23 @@ function Server.Classes.Actionshapes(data)
         TriggerClientEvent("AquiverLib:Actionshape:Destroy", -1, self.remoteId)
 
         Shared.Utils.Debug(string.format("Removed actionshape (%d)", self.remoteId))
+    end
+
+    ---@param vec3 vector3
+    self.setPosition = function(vec3)
+        if self.data.x == vec3.x and self.data.y == vec3.y and self.data.z == vec3.z then return end
+
+        self.data.x = vec3.x
+        self.data.y = vec3.y
+        self.data.z = vec3.z
+
+        TriggerClientEvent("AquiverLib:Actionshape:Update:Position",
+            -1,
+            self.remoteId,
+            self.data.x,
+            self.data.y,
+            self.data.z
+        )
     end
 
     self.__init__()

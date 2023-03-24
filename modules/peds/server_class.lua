@@ -8,6 +8,7 @@ local remoteIdCounter = 1
 ---@field heading number
 ---@field model string
 ---@field dimension number
+---@field scenario? string
 ---@field animDict? string
 ---@field animName? string
 ---@field animFlag? number
@@ -23,7 +24,7 @@ function Server.Classes.Peds(data)
     local self = {}
 
     self.data = data
-    self.data.resource = Shared.Utils:GetResourceName()
+    self.data.resource = data.resource
     self.remoteId = remoteIdCounter
 
     remoteIdCounter += 1

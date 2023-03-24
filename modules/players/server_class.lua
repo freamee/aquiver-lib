@@ -20,6 +20,7 @@ function Server.Classes.Players(source)
         TriggerClientEvent("SEND_CEF_MESSAGE", self.source, ctx)
     end
 
+    ---@return nil | any
     self.getVar = function(key)
         return type(self.variables[key]) ~= "nil" and self.variables[key] or nil
     end
@@ -65,6 +66,7 @@ function Server.Classes.Players(source)
         TriggerClientEvent("PLAYER_REMOVE_HELP", self.source, uid)
     end
 
+    ---@return string | nil
     self.getIdentifier = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
@@ -89,13 +91,23 @@ function Server.Classes.Players(source)
         end
     end
 
-    self.getJob = function()
+    self.getJobName = function()
         if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
             if not xPlayer then return end
-            return xPlayer.getJob()
+            return xPlayer.getJob().name --[[@as string]]
         else
             return "police"
+        end
+    end
+
+    self.getJobGrade = function()
+        if Server.ESX then
+            local xPlayer = Server.ESX.GetPlayerFromId(self.source)
+            if not xPlayer then return end
+            return xPlayer.getJob().grade --[[@as number]]
+        else
+            return 0
         end
     end
 

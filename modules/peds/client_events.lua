@@ -66,7 +66,7 @@ Citizen.CreateThread(function()
 
         for k, v in pairs(Client.Managers.Peds.Entities) do
             local dist = v.dist(Client.LocalPlayer.cache.playerCoords)
-            if dist < 15.0 then
+            if dist < CONFIG.STREAM_DISTANCES.PED then
                 v.addStream()
             else
                 v.removeStream()

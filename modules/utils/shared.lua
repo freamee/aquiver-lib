@@ -6,7 +6,7 @@ Shared.Utils = Module
 ---@param toJSON? boolean
 function Module.Debug(content, toJSON)
     local f = ""
-    f = "[" .. Module.GetResourceName() .. "]" .. "->" .. " ^3"
+    f = "->" .. " ^3"
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -19,7 +19,7 @@ end
 ---@param toJSON? boolean
 function Module.Error(content, toJSON)
     local f = ""
-    f = "[" .. Module.GetResourceName() .. "]" .. "->" .. " ^1"
+    f = "->" .. " ^1"
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -32,7 +32,7 @@ end
 ---@param toJSON? boolean
 function Module.Info(content, toJSON)
     local f = ""
-    f = "[" .. Module.GetResourceName() .. "]" .. "->" .. " ^5"
+    f = "->" .. " ^5"
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -44,10 +44,6 @@ end
 function Module.RoundNumber(num, decimals)
     local mult = 10 ^ (decimals or 0)
     return math.floor(num * mult + 0.5) / mult
-end
-
-function Module.GetResourceName()
-    return GetInvokingResource() or GetCurrentResourceName()
 end
 
 --- Dereferencing a value. (probably item)
