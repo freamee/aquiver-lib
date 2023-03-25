@@ -11,6 +11,8 @@ function Server.Classes.Players(source)
     self.source = source
     self.variables = {}
 
+    Player(self.source).state:set("dimension", GetPlayerRoutingBucket(self.source), true)
+
     if Server.Managers.Players.exists(self.source) then
         Shared.Utils.Error("Player already exists with sourceID: " .. self.source)
         return
@@ -43,6 +45,7 @@ function Server.Classes.Players(source)
 
     ---@param dimension number
     self.setDimension = function(dimension)
+        Player(self.source).state:set("dimension", dimension, true)
         SetPlayerRoutingBucket(self.source, dimension)
     end
 
@@ -199,15 +202,15 @@ function Server.Classes.Players(source)
     end
 
     ---@param name string
-	self.getInventoryItem = function(name)
-		if Server.ESX then
+    self.getInventoryItem = function(name)
+        if Server.ESX then
             local xPlayer = Server.ESX.GetPlayerFromId(self.source)
             if not xPlayer then return end
             return xPlayer.getInventoryItem(name)
         else
 
         end
-	end
+    end
 
     ---@param name string
     ---@param amount number
@@ -249,7 +252,7 @@ function Server.Classes.Players(source)
         if Server.Managers.Players.exists(self.source) then
             Server.Managers.Players.Entities[self.source] = nil
         end
-    
+
         Shared.Utils.Debug("Removed player with sourceID: " .. self.source)
     end
 

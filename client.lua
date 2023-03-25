@@ -10,4 +10,5 @@ end)
 function SendCefMessage(ctx)
     SendNUIMessage(ctx)
 end
+
 RegisterNetEvent("SEND_CEF_MESSAGE", SendCefMessage)

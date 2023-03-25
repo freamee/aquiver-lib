@@ -49,7 +49,6 @@ end)
 -- Requesting objects from server on client load.
 Citizen.CreateThread(function()
     while true do
-
         if NetworkIsPlayerActive(PlayerId()) then
             -- Request Data from server.
             TriggerServerEvent("AquiverLib:Object:RequestData")
@@ -63,17 +62,20 @@ end)
 -- STREAMING HANDLER.
 Citizen.CreateThread(function()
     while true do
-
         for k, v in pairs(Client.Managers.Objects.Entities) do
-            local dist = v.dist(Client.LocalPlayer.cache.playerCoords)
-            if dist < CONFIG.STREAM_DISTANCES.OBJECT then
-                v.addStream()
-            else
+            if LocalPlayer.state.dimension ~= v.data.dimension then
                 v.removeStream()
+            else
+                local dist = v.dist(Client.LocalPlayer.cache.playerCoords)
+                if dist < CONFIG.STREAM_DISTANCES.OBJECT then
+                    v.addStream()
+                else
+                    v.removeStream()
+                end
             end
         end
 
-        Citizen.Wait(5000)
+        Citizen.Wait(CONFIG.STREAM_INTERVALS.OBJECT)
     end
 end)
 
