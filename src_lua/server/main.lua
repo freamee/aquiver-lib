@@ -12,6 +12,7 @@ _G.APIServer.Managers = Managers
 _G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
+-- Events needs to be loaded after the _G.APIServer initialized.
 require("server.events.events")
 
 if GetResourceState("es_extended") ~= "missing" then

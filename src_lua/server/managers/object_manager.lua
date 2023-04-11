@@ -1,6 +1,6 @@
 local Object = require("server.gameobjects.object.object")
 
----@class ObjectManager
+---@class Server_ObjectManager
 ---@field objects table<number, API_Server_ObjectBase>
 ---@field remoteIdCounter number
 local ObjectManager = {}

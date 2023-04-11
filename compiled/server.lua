@@ -56,6 +56,7 @@ _G.APIServer.Managers = Managers
 _G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
+-- Events needs to be loaded after the _G.APIServer initialized.
 require("server.events.events")
 
 if GetResourceState("es_extended") ~= "missing" then
@@ -83,6 +84,18 @@ end)
 AddEventHandler("onResourceStart", function(resourceName)
     if _G.APIServer.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
+
+    _G.APIServer.Managers.ObjectManager:createObject({
+        dimension = 0,
+        model = "prop_wooden_barrel",
+        rx = 0,
+        ry = 0,
+        rz = 0,
+        variables = {},
+        x = 2439,
+        y = 3773,
+        z = 41
+    })
 end)
 
 end)
@@ -91,7 +104,7 @@ require("server.events.events_object")
 
 end)
 __bundle_register("server.events.events_object", function(require, _LOADED, __bundle_register, __bundle_modules)
-RegisterNetEvent(_G.APIServer.resource .. "objects:requestData", function()
+RegisterNetEvent(_G.APIServer.resource .. "objects:request:data", function()
     local playerId = source
 
     for k, v in pairs(_G.APIServer.Managers.ObjectManager.objects) do
@@ -472,7 +485,7 @@ end)
 __bundle_register("server.managers.object_manager", function(require, _LOADED, __bundle_register, __bundle_modules)
 local Object = require("server.gameobjects.object.object")
 
----@class ObjectManager
+---@class Server_ObjectManager
 ---@field objects table<number, API_Server_ObjectBase>
 ---@field remoteIdCounter number
 local ObjectManager = {}
@@ -697,12 +710,13 @@ function Object:setVar(key, value)
 
     self.data.variables[key] = value
 
-    --         TriggerClientEvent("AquiverLib:Object:Update:VariableKey",
-    --             -1,
-    --             self.remoteId,
-    --             key,
-    --             self.data.variables[key]
-    --         )
+    TriggerClientEvent(
+        _G.APIServer.resource .. "objects:set:variablekey",
+        -1,
+        self.remoteId,
+        key,
+        value
+    )
 
     TriggerEvent(_G.APIServer.resource .. ":onObjectVariableChange", self, key, value)
 
@@ -723,13 +737,14 @@ function Object:setPosition(vec3)
     self.data.y = vec3.y
     self.data.z = vec3.z
 
-    -- TriggerClientEvent("AquiverLib:Object:Update:Position",
-    --     -1,
-    --     self.remoteId,
-    --     self.data.x,
-    --     self.data.y,
-    --     self.data.z
-    -- )
+    TriggerClientEvent(
+        _G.APIServer.resource .. "objects:set:position",
+        -1,
+        self.remoteId,
+        self.data.x,
+        self.data.y,
+        self.data.z
+    )
 
     if type(self.data.id) == "number" then
         exports["oxmysql"]:prepare("UPDATE avp_lib_objects SET x = ?, y = ?, z = ? WHERE id = ?", {
@@ -749,13 +764,14 @@ function Object:setRotation(vec3)
     self.data.ry = vec3.y
     self.data.rz = vec3.z
 
-    -- TriggerClientEvent("AquiverLib:Object:Update:Rotation",
-    --     -1,
-    --     self.remoteId,
-    --     self.data.rx,
-    --     self.data.ry,
-    --     self.data.rz
-    -- )
+    TriggerClientEvent(
+        _G.APIServer.resource .. "objects:set:rotation",
+        -1,
+        self.remoteId,
+        self.data.rx,
+        self.data.ry,
+        self.data.rz
+    )
 
     if type(self.data.id) == "number" then
         exports["oxmysql"]:prepare("UPDATE avp_lib_objects SET rx = ?, ry = ?, rz = ? WHERE id = ?", {
@@ -773,11 +789,12 @@ function Object:setModel(model)
 
     self.data.model = model
 
-    -- TriggerClientEvent("AquiverLib:Object:Update:Model",
-    --     -1,
-    --     self.remoteId,
-    --     self.data.model
-    -- )
+    TriggerClientEvent(
+        _G.APIServer.resource .. "objects:set:model",
+        -1,
+        self.remoteId,
+        self.data.model
+    )
 
     if type(self.data.id) == "number" then
         exports["oxmysql"]:prepare("UPDATE avp_lib_objects SET model = ? WHERE id = ?", {
@@ -793,7 +810,8 @@ function Object:destroy()
     end
 
     TriggerEvent(_G.APIServer.resource .. "onObjectDestroyed", self)
-    --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    TriggerClientEvent(_G.APIServer.resource .. "objects:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed object (%d, %s)", self.remoteId, self.data.model)
