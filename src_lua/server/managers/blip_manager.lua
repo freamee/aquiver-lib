@@ -10,7 +10,7 @@ BlipManager.new = function()
     local self = setmetatable({}, BlipManager)
 
     self.blips = {}
-    self.remoteIdCounter = 1
+    self.remoteIdCounter = 0
 
     return self
 end

@@ -10,7 +10,7 @@ ObjectManager.new = function()
     local self = setmetatable({}, ObjectManager)
 
     self.objects = {}
-    self.remoteIdCounter = 1
+    self.remoteIdCounter = 0
 
     return self
 end

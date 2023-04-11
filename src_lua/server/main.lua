@@ -12,6 +12,8 @@ _G.APIServer.Managers = Managers
 _G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
+require("server.events.events")
+
 if GetResourceState("es_extended") ~= "missing" then
     _G.APIShared.Helpers.Logger:info("ESX Framework recognized.")
     _G.APIServer.ESX = exports['es_extended']:getSharedObject()

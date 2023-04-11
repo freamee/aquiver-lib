@@ -34,11 +34,16 @@ end
 function Object:__init__()
     TriggerEvent(_G.APIServer.resource .. ":onObjectCreated", self)
 
-    --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
+    -- Create for everyone.
+    self:createForPlayer(-1)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new object (%d, %s)", self.remoteId, self.data.model)
     )
+end
+
+function Object:createForPlayer(source)
+    TriggerClientEvent(_G.APIServer.resource .. "objects:create", source, self.remoteId, self.data)
 end
 
 function Object:getVector3Position()

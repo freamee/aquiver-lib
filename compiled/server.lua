@@ -56,6 +56,8 @@ _G.APIServer.Managers = Managers
 _G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
+require("server.events.events")
+
 if GetResourceState("es_extended") ~= "missing" then
     _G.APIShared.Helpers.Logger:info("ESX Framework recognized.")
     _G.APIServer.ESX = exports['es_extended']:getSharedObject()
@@ -81,6 +83,20 @@ end)
 AddEventHandler("onResourceStart", function(resourceName)
     if _G.APIServer.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
+end)
+
+end)
+__bundle_register("server.events.events", function(require, _LOADED, __bundle_register, __bundle_modules)
+require("server.events.events_object")
+
+end)
+__bundle_register("server.events.events_object", function(require, _LOADED, __bundle_register, __bundle_modules)
+RegisterNetEvent(_G.APIServer.resource .. "objects:requestData", function()
+    local playerId = source
+
+    for k, v in pairs(_G.APIServer.Managers.ObjectManager.objects) do
+        v:createForPlayer(playerId)
+    end
 end)
 
 end)
@@ -114,14 +130,228 @@ __bundle_register("server.managers.managers", function(require, _LOADED, __bundl
 local PlayerManager = require("server.managers.player_manager")
 local ObjectManager = require("server.managers.object_manager")
 local BlipManager = require("server.managers.blip_manager")
+local ActionshapeManager = require("server.managers.actionshape_manager")
+local PedManager = require("server.managers.ped_manager")
 
 local Managers = {
     PlayerManager = PlayerManager.new(),
     ObjectManager = ObjectManager.new(),
-    BlipManager = BlipManager.new()
+    BlipManager = BlipManager.new(),
+    ActionshapeManager = ActionshapeManager.new(),
+    PedManager = PedManager.new()
 }
 
 return Managers
+
+end)
+__bundle_register("server.managers.ped_manager", function(require, _LOADED, __bundle_register, __bundle_modules)
+local Ped = require("server.gameobjects.ped.ped")
+
+---@class PedManager
+---@field peds table<number, API_Server_PedBase>
+---@field remoteIdCounter number
+local PedManager = {}
+PedManager.__index = PedManager
+
+PedManager.new = function()
+    local self = setmetatable({}, PedManager)
+
+    self.peds = {}
+    self.remoteIdCounter = 0
+
+    return self
+end
+
+---@param data IPed
+function PedManager:createPed(data)
+    local remoteId = self:getNextRemoteId()
+
+    self.peds[remoteId] = Ped.new(remoteId, data)
+
+    return self.peds[remoteId]
+end
+
+function PedManager:getNextRemoteId()
+    self.remoteIdCounter = self.remoteIdCounter + 1
+    return self.remoteIdCounter
+end
+
+function PedManager:getPed(remoteId)
+    return self.peds[remoteId]
+end
+
+return PedManager
+
+end)
+__bundle_register("server.gameobjects.ped.ped", function(require, _LOADED, __bundle_register, __bundle_modules)
+---@class IPed
+---@field pos vector3
+---@field heading number
+---@field model string
+---@field dimension number
+---@field scenario? string
+---@field animDict? string
+---@field animName? string
+---@field animFlag? number
+---@field questionMark? boolean
+---@field name? string
+
+---@class API_Server_PedBase
+---@field data IPed
+---@field remoteId number
+local Ped = {}
+Ped.__index = Ped
+
+---@param remoteId number
+---@param data IPed
+Ped.new = function(remoteId, data)
+    local self = setmetatable({}, Ped)
+
+    self.data = data
+    self.remoteId = remoteId
+
+    self:__init__()
+
+    return self
+end
+
+function Ped:__init__()
+    _G.APIShared.Helpers.Logger:debug(
+        string.format("Created new ped (%d, %s)", self.remoteId, self.data.model)
+    )
+
+    TriggerEvent(_G.APIServer.resource .. ":onPedCreated", self)
+end
+
+function Ped:destroy()
+    if _G.APIServer.Managers.PedManager.peds[self.remoteId] then
+        _G.APIServer.Managers.PedManager.peds[self.remoteId] = nil
+    end
+
+    TriggerEvent(_G.APIServer.resource .. "onPedDestroyed", self)
+    -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    _G.APIShared.Helpers.Logger:debug(
+        string.format("Removed ped (%d, %s)", self.remoteId, self.data.model)
+    )
+end
+
+return Ped
+
+end)
+__bundle_register("server.managers.actionshape_manager", function(require, _LOADED, __bundle_register, __bundle_modules)
+local Actionshape = require("server.gameobjects.actionshape.actionshape")
+
+---@class ActionshapeManager
+---@field actionshapes table<number, API_Server_ActionshapeBase>
+---@field remoteIdCounter number
+local ActionshapeManager = {}
+ActionshapeManager.__index = ActionshapeManager
+
+ActionshapeManager.new = function()
+    local self = setmetatable({}, ActionshapeManager)
+
+    self.actionshapes = {}
+    self.remoteIdCounter = 0
+
+    return self
+end
+
+---@param data IActionShape
+function ActionshapeManager:createActionshape(data)
+    local remoteId = self:getNextRemoteId()
+
+    self.actionshapes[remoteId] = Actionshape.new(remoteId, data)
+
+    return self.actionshapes[remoteId]
+end
+
+function ActionshapeManager:getNextRemoteId()
+    self.remoteIdCounter = self.remoteIdCounter + 1
+    return self.remoteIdCounter
+end
+
+function ActionshapeManager:getActionshape(remoteId)
+    return self.actionshapes[remoteId]
+end
+
+return ActionshapeManager
+
+end)
+__bundle_register("server.gameobjects.actionshape.actionshape", function(require, _LOADED, __bundle_register, __bundle_modules)
+---@class IActionShape
+---@field pos vector3
+---@field color { r:number; g:number; b:number; a:number; }
+---@field sprite number
+---@field range number
+---@field dimension number
+---@field variables table
+
+---@class API_Server_ActionshapeBase
+---@field data IActionShape
+---@field remoteId number
+local Actionshape = {}
+Actionshape.__index = Actionshape
+
+---@param remoteId number
+---@param data IActionShape
+Actionshape.new = function(remoteId, data)
+    local self = setmetatable({}, Actionshape)
+
+    self.data = data
+    self.remoteId = remoteId
+
+    self:__init__()
+
+    return self
+end
+
+function Actionshape:__init__()
+    _G.APIShared.Helpers.Logger:debug(
+        string.format("Created new actionshape (%d)", self.remoteId)
+    )
+
+    self.data.display = type(self.data.display) == "number" and self.data.display or 4
+    self.data.shortRange = type(self.data.shortRange) == "boolean" and self.data.shortRange or true
+    self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
+    self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
+
+    TriggerEvent(_G.APIServer.resource .. ":onActionshapeCreated", self)
+
+    --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
+end
+
+---@param vec3 vector3
+function Actionshape:setPosition(vec3)
+    if self.data.pos.x == vec3.x and self.data.pos.y == vec3.y and self.data.pos.z == vec3.z then return end
+
+    self.data.pos.x = vec3.x
+    self.data.pos.y = vec3.y
+    self.data.pos.z = vec3.z
+
+    --     TriggerClientEvent("AquiverLib:Actionshape:Update:Position",
+    --         -1,
+    --         self.remoteId,
+    --         self.data.x,
+    --         self.data.y,
+    --         self.data.z
+    --     )
+end
+
+function Actionshape:destroy()
+    if _G.APIServer.Managers.ActionshapeManager.actionshapes[self.remoteId] then
+        _G.APIServer.Managers.ActionshapeManager.actionshapes[self.remoteId] = nil
+    end
+
+    TriggerEvent(_G.APIServer.resource .. "onActionshapeDestroyed", self)
+    -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    _G.APIShared.Helpers.Logger:debug(
+        string.format("Removed actionshape (%d)", self.remoteId)
+    )
+end
+
+return Actionshape
 
 end)
 __bundle_register("server.managers.blip_manager", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -137,7 +367,7 @@ BlipManager.new = function()
     local self = setmetatable({}, BlipManager)
 
     self.blips = {}
-    self.remoteIdCounter = 1
+    self.remoteIdCounter = 0
 
     return self
 end
@@ -173,7 +403,6 @@ __bundle_register("server.gameobjects.blip.blip", function(require, _LOADED, __b
 ---@field display? number
 ---@field shortRange? boolean
 ---@field scale? number
----@field resource? string
 
 ---@class API_Server_BlipBase
 ---@field data IBlip
@@ -253,7 +482,7 @@ ObjectManager.new = function()
     local self = setmetatable({}, ObjectManager)
 
     self.objects = {}
-    self.remoteIdCounter = 1
+    self.remoteIdCounter = 0
 
     return self
 end
@@ -434,11 +663,16 @@ end
 function Object:__init__()
     TriggerEvent(_G.APIServer.resource .. ":onObjectCreated", self)
 
-    --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
+    -- Create for everyone.
+    self:createForPlayer(-1)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new object (%d, %s)", self.remoteId, self.data.model)
     )
+end
+
+function Object:createForPlayer(source)
+    TriggerClientEvent(_G.APIServer.resource .. "objects:create", source, self.remoteId, self.data)
 end
 
 function Object:getVector3Position()

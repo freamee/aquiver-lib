@@ -7,7 +7,6 @@
 ---@field display? number
 ---@field shortRange? boolean
 ---@field scale? number
----@field resource? string
 
 ---@class API_Server_BlipBase
 ---@field data IBlip
