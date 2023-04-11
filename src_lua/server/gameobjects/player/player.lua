@@ -17,7 +17,9 @@ end
 
 ---@private
 function Player:__init__()
-    print("Created new Player with playerID: " .. self.playerId)
+    _G.APIShared.Helpers.Logger:debug(
+        string.format("Created new player (%d)", self.playerId)
+    )
 
     TriggerEvent(_G.APIServer.resource .. ":onPlayerCreated", self)
 end

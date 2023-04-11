@@ -2,7 +2,7 @@ fx_version 'adamant'
 
 game 'gta5'
 
-version "1.11"
+version "2.0"
 
 lua54 "yes"
 
@@ -13,28 +13,14 @@ dependencies {
 
 server_scripts {
     'config.lua',
-    
-    -- Shared contents
-    'shared.lua',
-    'modules/**/shared.lua',
 
-    -- Server contents
-    'server.lua',
-    'modules/**/server_*.lua',
-    'modules/**/server.lua'
+    'compiled/server.lua',
 }
 
 client_scripts {
     'config.lua',
 
-    -- Shared contents
-    'shared.lua',
-    'modules/**/shared.lua',
-
-    -- Client contents
-    'client.lua',
-    'modules/**/client_*.lua',
-    'modules/**/client.lua'
+    'compiled/client.lua'
 }
 
 ui_page 'html/index.html'

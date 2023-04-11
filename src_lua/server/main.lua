@@ -13,10 +13,10 @@ _G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
 if GetResourceState("es_extended") ~= "missing" then
-    print("ESX framework recognized.")
+    _G.APIShared.Helpers.Logger:info("ESX Framework recognized.")
     _G.APIServer.ESX = exports['es_extended']:getSharedObject()
 else
-    print("Standalone framework recognized.")
+    _G.APIShared.Helpers.Logger:info("Standalone framework recognized.")
 end
 
 if _G.APIServer.ESX then

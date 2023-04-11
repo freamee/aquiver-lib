@@ -25,15 +25,20 @@ Object.new = function(remoteId, data)
     self.data = data
     self.remoteId = remoteId
 
-    TriggerEvent(_G.APIServer.resource .. "onObjectCreated", self)
+    self:__init__()
+
+    return self
+end
+
+---@private
+function Object:__init__()
+    TriggerEvent(_G.APIServer.resource .. ":onObjectCreated", self)
 
     --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new object (%d, %s)", self.remoteId, self.data.model)
     )
-
-    return self
 end
 
 function Object:getVector3Position()
@@ -149,9 +154,10 @@ function Object:setModel(model)
 end
 
 function Object:destroy()
-    --         if Server.Managers.Objects.exists(self.remoteId) then
-    --             Server.Managers.Objects.Entities[self.remoteId] = nil
-    --         end
+    if _G.APIServer.Managers.ObjectManager.objects[self.remoteId] then
+        _G.APIServer.Managers.ObjectManager.objects[self.remoteId] = nil
+    end
+
     TriggerEvent(_G.APIServer.resource .. "onObjectDestroyed", self)
     --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
 
