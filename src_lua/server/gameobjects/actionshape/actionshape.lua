@@ -36,8 +36,11 @@ function Actionshape:__init__()
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
     TriggerEvent(_G.APIShared.resource .. ":onActionshapeCreated", self)
+    self:createForPlayer(-1)
+end
 
-    --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
+function Actionshape:createForPlayer(source)
+    TriggerClientEvent(_G.APIShared.resource .. "actionshapes:create", source, self.remoteId, self.data)
 end
 
 ---@param vec3 vector3
@@ -48,22 +51,23 @@ function Actionshape:setPosition(vec3)
     self.data.pos.y = vec3.y
     self.data.pos.z = vec3.z
 
-    --     TriggerClientEvent("AquiverLib:Actionshape:Update:Position",
-    --         -1,
-    --         self.remoteId,
-    --         self.data.x,
-    --         self.data.y,
-    --         self.data.z
-    --     )
+    TriggerClientEvent(_G.APIShared.resource .. "actionshapes:set:position",
+        -1,
+        self.remoteId,
+        self.data.pos.x,
+        self.data.pos.y,
+        self.data.pos.z
+    )
 end
 
 function Actionshape:destroy()
-    if _G.APIServer.Managers.ActionshapeManager.actionshapes[self.remoteId] then
-        _G.APIServer.Managers.ActionshapeManager.actionshapes[self.remoteId] = nil
+    if _G.APIServer.Managers.ActionshapeManager.shapes[self.remoteId] then
+        _G.APIServer.Managers.ActionshapeManager.shapes[self.remoteId] = nil
     end
 
     TriggerEvent(_G.APIShared.resource .. "onActionshapeDestroyed", self)
-    -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    TriggerClientEvent(_G.APIShared.resource .. "actionshapes:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed actionshape (%d)", self.remoteId)

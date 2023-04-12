@@ -61,4 +61,13 @@ AddEventHandler("onResourceStart", function(resourceName)
         questionMark = true,
         scenario = "WORLD_HUMAN_BINOCULARS"
     })
+
+    _G.APIServer.Managers.ActionshapeManager:createActionshape({
+        dimension = 0,
+        pos = vector3(2430, 3770, 41),
+        range = 5.0,
+        sprite = 1,
+        variables = {},
+        color = { r = 0, g = 0, b = 200, a = 200 }
+    })
 end)
