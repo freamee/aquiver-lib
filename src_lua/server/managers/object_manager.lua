@@ -47,7 +47,7 @@ function ObjectManager:insertSQL(data)
             type(data.ry) == "number" and data.ry or 0.0,
             type(data.rz) == "number" and data.rz or 0.0,
             type(data.dimension) == "number" and data.dimension or 0,
-            _G.APIServer.resource,
+            _G.APIShared.resource,
             type(data.variables) == "table" and json.encode(data.variables) or json.encode({})
         }
     )
@@ -64,7 +64,7 @@ end
 
 function ObjectManager:loadObjectsFromSql()
     exports["oxmysql"]:query("SELECT * FROM avp_lib_objects WHERE resource = ?", {
-        _G.APIServer.resource
+        _G.APIShared.resource
     }, function(responseData)
         if responseData and type(responseData) == "table" then
             for i = 1, #responseData do

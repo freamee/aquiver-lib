@@ -36,11 +36,11 @@ function Ped:__init__()
 
     self:createForPlayer(-1)
 
-    TriggerEvent(_G.APIServer.resource .. ":onPedCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onPedCreated", self)
 end
 
 function Ped:createForPlayer(source)
-    TriggerClientEvent(_G.APIServer.resource .. "peds:create", source, self.remoteId, self.data)
+    TriggerClientEvent(_G.APIShared.resource .. "peds:create", source, self.remoteId, self.data)
 end
 
 function Ped:destroy()
@@ -48,9 +48,9 @@ function Ped:destroy()
         _G.APIServer.Managers.PedManager.peds[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onPedDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onPedDestroyed", self)
 
-    TriggerClientEvent(_G.APIServer.resource .. "peds:destroy", -1, self.remoteId)
+    TriggerClientEvent(_G.APIShared.resource .. "peds:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed ped (%d, %s)", self.remoteId, self.data.model)

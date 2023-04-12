@@ -64,48 +64,47 @@ function Ped:addStream()
     -- Re-apply scenario.
     self:setScenario(self.data.scenario)
 
-    -- if self.data.questionMark or self.data.name then
-    --     Citizen.CreateThread(function()
-    --         while self.isStreamed do
-    --             local dist = #(Client.LocalPlayer.cache.playerCoords - self.getVector3Position())
+    if self.data.questionMark or self.data.name then
+        CreateThread(function()
+            while self.isStreamed do
+                local playerCoords = GetEntityCoords(PlayerPedId())
+                local dist = #(playerCoords - self:getVector3Position())
+                if dist < 5 then
+                    local onScreen = IsEntityOnScreen(self.pedHandle)
 
-    --             local onScreen = false
-    --             if dist < 5.0 then
-    --                 onScreen = IsEntityOnScreen(self.pedHandle)
+                    if self.data.questionMark then
+                        DrawMarker(
+                            32,
+                            vector3(self.data.pos.x, self.data.pos.y, self.data.pos.z + 1.35),
+                            0, 0, 0,
+                            0, 0, 0,
+                            0.35, 0.35, 0.35,
+                            255, 255, 0, 200,
+                            true, false, 2, true, nil, nil, false
+                        )
+                    end
 
-    --                 if self.data.questionMark then
-    --                     DrawMarker(
-    --                         32,
-    --                         self.data.x, self.data.y, self.data.z + 1.35,
-    --                         0, 0, 0,
-    --                         0, 0, 0,
-    --                         0.35, 0.35, 0.35,
-    --                         255, 255, 0, 200,
-    --                         true, false, 2, true, nil, nil, false
-    --                     )
-    --                 end
+                    if self.data.name then
+                        _G.APIClient.Helpers:drawText3D(
+                            self.data.pos.x,
+                            self.data.pos.y,
+                            self.data.pos.z + 1,
+                            self.data.name,
+                            0.28
+                        )
+                    end
 
-    --                 if self.data.name then
-    --                     Client.Utils:DrawText3D(
-    --                         self.data.x,
-    --                         self.data.y,
-    --                         self.data.z + 1,
-    --                         self.data.name,
-    --                         0.28
-    --                     )
-    --                 end
-    --             else
-    --                 Citizen.Wait(500)
-    --             end
+                    if not onScreen then
+                        Wait(500)
+                    end
+                else
+                    Wait(1000)
+                end
 
-    --             if not onScreen then
-    --                 Citizen.Wait(500)
-    --             end
-
-    --             Citizen.Wait(1)
-    --         end
-    --     end)
-    -- end
+                Wait(1)
+            end
+        end)
+    end
 
     TriggerEvent(_G.APIShared.resource .. "onPedStreamedIn", self)
 
@@ -141,8 +140,6 @@ end
 
 ---@param scenario string
 function Ped:setScenario(scenario)
-    if self.data.scenario == scenario then return end
-
     self.data.scenario = scenario
 
     if self.data.scenario and DoesEntityExist(self.pedHandle) then

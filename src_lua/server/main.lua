@@ -9,7 +9,6 @@ _G.APIShared = Shared
 _G.APIServer = {}
 _G.APIServer.Helpers = Helpers
 _G.APIServer.Managers = Managers
-_G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
 -- Events needs to be loaded after the _G.APIServer initialized.
@@ -38,6 +37,28 @@ AddEventHandler("playerDropped", function()
     _G.APIServer.Managers.PlayerManager:onPlayerQuit(playerId)
 end)
 AddEventHandler("onResourceStart", function(resourceName)
-    if _G.APIServer.resource ~= resourceName then return end
+    if _G.APIShared.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
+
+    _G.APIServer.Managers.ObjectManager:createObject({
+        dimension = 0,
+        model = "prop_barrel_02a",
+        rx = 0,
+        ry = 0,
+        rz = 0,
+        variables = {},
+        x = 2440,
+        y = 3770,
+        z = 41
+    })
+
+    _G.APIServer.Managers.PedManager:createPed({
+        dimension = 0,
+        heading = 0,
+        model = "a_m_y_beach_01",
+        name = "Steph Curry",
+        pos = vector(2430, 3770, 41),
+        questionMark = true,
+        scenario = "WORLD_HUMAN_BINOCULARS"
+    })
 end)

@@ -32,7 +32,7 @@ end
 
 ---@private
 function Object:__init__()
-    TriggerEvent(_G.APIServer.resource .. ":onObjectCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onObjectCreated", self)
 
     -- Create for everyone.
     self:createForPlayer(-1)
@@ -43,7 +43,7 @@ function Object:__init__()
 end
 
 function Object:createForPlayer(source)
-    TriggerClientEvent(_G.APIServer.resource .. "objects:create", source, self.remoteId, self.data)
+    TriggerClientEvent(_G.APIShared.resource .. "objects:create", source, self.remoteId, self.data)
 end
 
 function Object:getVector3Position()
@@ -69,14 +69,14 @@ function Object:setVar(key, value)
     self.data.variables[key] = value
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:variablekey",
+        _G.APIShared.resource .. "objects:set:variablekey",
         -1,
         self.remoteId,
         key,
         value
     )
 
-    TriggerEvent(_G.APIServer.resource .. ":onObjectVariableChange", self, key, value)
+    TriggerEvent(_G.APIShared.resource .. ":onObjectVariableChange", self, key, value)
 
     -- // TODO: Performance increase here with some timeout.
     if type(self.data.id) == "number" then
@@ -96,7 +96,7 @@ function Object:setPosition(vec3)
     self.data.z = vec3.z
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:position",
+        _G.APIShared.resource .. "objects:set:position",
         -1,
         self.remoteId,
         self.data.x,
@@ -123,7 +123,7 @@ function Object:setRotation(vec3)
     self.data.rz = vec3.z
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:rotation",
+        _G.APIShared.resource .. "objects:set:rotation",
         -1,
         self.remoteId,
         self.data.rx,
@@ -148,7 +148,7 @@ function Object:setModel(model)
     self.data.model = model
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:model",
+        _G.APIShared.resource .. "objects:set:model",
         -1,
         self.remoteId,
         self.data.model
@@ -167,9 +167,9 @@ function Object:destroy()
         _G.APIServer.Managers.ObjectManager.objects[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onObjectDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onObjectDestroyed", self)
 
-    TriggerClientEvent(_G.APIServer.resource .. "objects:destroy", -1, self.remoteId)
+    TriggerClientEvent(_G.APIShared.resource .. "objects:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed object (%d, %s)", self.remoteId, self.data.model)

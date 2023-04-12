@@ -46,11 +46,13 @@ local Shared = require("shared.shared")
 
 local Config = require("client.config")
 local Managers = require("client.managers.managers")
+local Helpers = require("client.helpers.helpers")
 
 _G.APIShared = Shared
 
 _G.APIClient = {}
 _G.APIClient.Managers = Managers
+_G.APIClient.Helpers = Helpers
 _G.APIClient.CONFIG = Config
 
 -- Events needs to be loaded after the _G.APIClient initialized.
@@ -183,6 +185,57 @@ Citizen.CreateThread(function()
 end)
 
 end)
+__bundle_register("client.helpers.helpers", function(require, _LOADED, __bundle_register, __bundle_modules)
+local Helpers = {}
+
+---@param x number
+---@param y number
+---@param z number
+---@param text string
+---@param size? number Default: 0.25
+---@param font? number Default: 0
+function Helpers:DrawText3D(x, y, z, text, size, font)
+    size = type(size) == "number" and size or 0.25
+    font = type(font) == "number" and font or 0
+
+    SetTextScale(size, size)
+    SetTextFont(font)
+    SetTextColour(255, 255, 255, 255)
+    SetTextDropshadow(0, 0, 0, 0, 100)
+    -- SetTextDropShadow()
+    SetTextOutline()
+    SetTextCentre(true)
+    SetDrawOrigin(x, y, z, 0)
+    BeginTextCommandDisplayText('STRING')
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayText(0.0, 0.0)
+    ClearDrawOrigin()
+end
+
+---@param x number
+---@param y number
+---@param text string
+---@param size? number Default: 0.25
+---@param font? number Default: 0
+function Helpers:DrawText2D(x, y, text, size, font)
+    size = type(size) == "number" and size or 0.25
+    font = type(font) == "number" and font or 0
+
+    SetTextFont(font)
+    SetTextProportional(false)
+    SetTextScale(size, size)
+    SetTextColour(255, 255, 255, 255)
+    SetTextDropshadow(0, 0, 0, 0, 100)
+    SetTextDropShadow()
+    SetTextCentre(true)
+    SetTextEntry('STRING')
+    AddTextComponentString(text)
+    DrawText(x, y)
+end
+
+return Helpers
+
+end)
 __bundle_register("client.managers.managers", function(require, _LOADED, __bundle_register, __bundle_modules)
 local ObjectManager = require("client.managers.object_manager")
 local PedManager = require("client.managers.ped_manager")
@@ -297,48 +350,47 @@ function Ped:addStream()
     -- Re-apply scenario.
     self:setScenario(self.data.scenario)
 
-    -- if self.data.questionMark or self.data.name then
-    --     Citizen.CreateThread(function()
-    --         while self.isStreamed do
-    --             local dist = #(Client.LocalPlayer.cache.playerCoords - self.getVector3Position())
+    if self.data.questionMark or self.data.name then
+        CreateThread(function()
+            while self.isStreamed do
+                local playerCoords = GetEntityCoords(PlayerPedId())
+                local dist = #(playerCoords - self:getVector3Position())
+                if dist < 5 then
+                    local onScreen = IsEntityOnScreen(self.pedHandle)
 
-    --             local onScreen = false
-    --             if dist < 5.0 then
-    --                 onScreen = IsEntityOnScreen(self.pedHandle)
+                    if self.data.questionMark then
+                        DrawMarker(
+                            32,
+                            vector3(self.data.pos.x, self.data.pos.y, self.data.pos.z + 1.35),
+                            0, 0, 0,
+                            0, 0, 0,
+                            0.35, 0.35, 0.35,
+                            255, 255, 0, 200,
+                            true, false, 2, true, nil, nil, false
+                        )
+                    end
 
-    --                 if self.data.questionMark then
-    --                     DrawMarker(
-    --                         32,
-    --                         self.data.x, self.data.y, self.data.z + 1.35,
-    --                         0, 0, 0,
-    --                         0, 0, 0,
-    --                         0.35, 0.35, 0.35,
-    --                         255, 255, 0, 200,
-    --                         true, false, 2, true, nil, nil, false
-    --                     )
-    --                 end
+                    if self.data.name then
+                        _G.APIClient.Helpers:DrawText3D(
+                            self.data.pos.x,
+                            self.data.pos.y,
+                            self.data.pos.z + 1,
+                            self.data.name,
+                            0.28
+                        )
+                    end
 
-    --                 if self.data.name then
-    --                     Client.Utils:DrawText3D(
-    --                         self.data.x,
-    --                         self.data.y,
-    --                         self.data.z + 1,
-    --                         self.data.name,
-    --                         0.28
-    --                     )
-    --                 end
-    --             else
-    --                 Citizen.Wait(500)
-    --             end
+                    if not onScreen then
+                        Wait(500)
+                    end
+                else
+                    Wait(1000)
+                end
 
-    --             if not onScreen then
-    --                 Citizen.Wait(500)
-    --             end
-
-    --             Citizen.Wait(1)
-    --         end
-    --     end)
-    -- end
+                Wait(1)
+            end
+        end)
+    end
 
     TriggerEvent(_G.APIShared.resource .. "onPedStreamedIn", self)
 
@@ -374,8 +426,6 @@ end
 
 ---@param scenario string
 function Ped:setScenario(scenario)
-    if self.data.scenario == scenario then return end
-
     self.data.scenario = scenario
 
     if self.data.scenario and DoesEntityExist(self.pedHandle) then

@@ -38,7 +38,7 @@ function Blip:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIServer.resource .. ":onBlipCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
 
     --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
 end
@@ -62,7 +62,7 @@ function Blip:destroy()
         _G.APIServer.Managers.BlipManager.blips[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onBlipDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
     -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(

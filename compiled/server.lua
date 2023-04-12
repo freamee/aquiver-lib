@@ -53,7 +53,6 @@ _G.APIShared = Shared
 _G.APIServer = {}
 _G.APIServer.Helpers = Helpers
 _G.APIServer.Managers = Managers
-_G.APIServer.resource = GetCurrentResourceName() --[[@as string]]
 _G.APIServer.CONFIG = Config
 
 -- Events needs to be loaded after the _G.APIServer initialized.
@@ -82,8 +81,30 @@ AddEventHandler("playerDropped", function()
     _G.APIServer.Managers.PlayerManager:onPlayerQuit(playerId)
 end)
 AddEventHandler("onResourceStart", function(resourceName)
-    if _G.APIServer.resource ~= resourceName then return end
+    if _G.APIShared.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
+
+    _G.APIServer.Managers.ObjectManager:createObject({
+        dimension = 0,
+        model = "prop_barrel_02a",
+        rx = 0,
+        ry = 0,
+        rz = 0,
+        variables = {},
+        x = 2440,
+        y = 3770,
+        z = 41
+    })
+
+    _G.APIServer.Managers.PedManager:createPed({
+        dimension = 0,
+        heading = 0,
+        model = "a_m_y_beach_01",
+        name = "Steph Curry",
+        pos = vector(2430, 3770, 41),
+        questionMark = true,
+        scenario = "WORLD_HUMAN_BINOCULARS"
+    })
 end)
 
 end)
@@ -93,7 +114,7 @@ require("server.events.events_ped")
 
 end)
 __bundle_register("server.events.events_ped", function(require, _LOADED, __bundle_register, __bundle_modules)
-RegisterNetEvent(_G.APIServer.resource .. "peds:request:data", function()
+RegisterNetEvent(_G.APIShared.resource .. "peds:request:data", function()
     local playerId = source
 
     for k, v in pairs(_G.APIServer.Managers.PedManager.peds) do
@@ -103,7 +124,7 @@ end)
 
 end)
 __bundle_register("server.events.events_object", function(require, _LOADED, __bundle_register, __bundle_modules)
-RegisterNetEvent(_G.APIServer.resource .. "objects:request:data", function()
+RegisterNetEvent(_G.APIShared.resource .. "objects:request:data", function()
     local playerId = source
 
     for k, v in pairs(_G.APIServer.Managers.ObjectManager.objects) do
@@ -234,11 +255,11 @@ function Ped:__init__()
 
     self:createForPlayer(-1)
 
-    TriggerEvent(_G.APIServer.resource .. ":onPedCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onPedCreated", self)
 end
 
 function Ped:createForPlayer(source)
-    TriggerClientEvent(_G.APIServer.resource .. "peds:create", source, self.remoteId, self.data)
+    TriggerClientEvent(_G.APIShared.resource .. "peds:create", source, self.remoteId, self.data)
 end
 
 function Ped:destroy()
@@ -246,9 +267,9 @@ function Ped:destroy()
         _G.APIServer.Managers.PedManager.peds[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onPedDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onPedDestroyed", self)
 
-    TriggerClientEvent(_G.APIServer.resource .. "peds:destroy", -1, self.remoteId)
+    TriggerClientEvent(_G.APIShared.resource .. "peds:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed ped (%d, %s)", self.remoteId, self.data.model)
@@ -335,7 +356,7 @@ function Actionshape:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIServer.resource .. ":onActionshapeCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onActionshapeCreated", self)
 
     --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
 end
@@ -362,7 +383,7 @@ function Actionshape:destroy()
         _G.APIServer.Managers.ActionshapeManager.actionshapes[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onActionshapeDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onActionshapeDestroyed", self)
     -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
@@ -453,7 +474,7 @@ function Blip:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIServer.resource .. ":onBlipCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
 
     --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
 end
@@ -477,7 +498,7 @@ function Blip:destroy()
         _G.APIServer.Managers.BlipManager.blips[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onBlipDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
     -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
@@ -538,7 +559,7 @@ function ObjectManager:insertSQL(data)
             type(data.ry) == "number" and data.ry or 0.0,
             type(data.rz) == "number" and data.rz or 0.0,
             type(data.dimension) == "number" and data.dimension or 0,
-            _G.APIServer.resource,
+            _G.APIShared.resource,
             type(data.variables) == "table" and json.encode(data.variables) or json.encode({})
         }
     )
@@ -555,7 +576,7 @@ end
 
 function ObjectManager:loadObjectsFromSql()
     exports["oxmysql"]:query("SELECT * FROM avp_lib_objects WHERE resource = ?", {
-        _G.APIServer.resource
+        _G.APIShared.resource
     }, function(responseData)
         if responseData and type(responseData) == "table" then
             for i = 1, #responseData do
@@ -680,7 +701,7 @@ end
 
 ---@private
 function Object:__init__()
-    TriggerEvent(_G.APIServer.resource .. ":onObjectCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onObjectCreated", self)
 
     -- Create for everyone.
     self:createForPlayer(-1)
@@ -691,7 +712,7 @@ function Object:__init__()
 end
 
 function Object:createForPlayer(source)
-    TriggerClientEvent(_G.APIServer.resource .. "objects:create", source, self.remoteId, self.data)
+    TriggerClientEvent(_G.APIShared.resource .. "objects:create", source, self.remoteId, self.data)
 end
 
 function Object:getVector3Position()
@@ -717,14 +738,14 @@ function Object:setVar(key, value)
     self.data.variables[key] = value
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:variablekey",
+        _G.APIShared.resource .. "objects:set:variablekey",
         -1,
         self.remoteId,
         key,
         value
     )
 
-    TriggerEvent(_G.APIServer.resource .. ":onObjectVariableChange", self, key, value)
+    TriggerEvent(_G.APIShared.resource .. ":onObjectVariableChange", self, key, value)
 
     -- // TODO: Performance increase here with some timeout.
     if type(self.data.id) == "number" then
@@ -744,7 +765,7 @@ function Object:setPosition(vec3)
     self.data.z = vec3.z
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:position",
+        _G.APIShared.resource .. "objects:set:position",
         -1,
         self.remoteId,
         self.data.x,
@@ -771,7 +792,7 @@ function Object:setRotation(vec3)
     self.data.rz = vec3.z
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:rotation",
+        _G.APIShared.resource .. "objects:set:rotation",
         -1,
         self.remoteId,
         self.data.rx,
@@ -796,7 +817,7 @@ function Object:setModel(model)
     self.data.model = model
 
     TriggerClientEvent(
-        _G.APIServer.resource .. "objects:set:model",
+        _G.APIShared.resource .. "objects:set:model",
         -1,
         self.remoteId,
         self.data.model
@@ -815,9 +836,9 @@ function Object:destroy()
         _G.APIServer.Managers.ObjectManager.objects[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIServer.resource .. "onObjectDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onObjectDestroyed", self)
 
-    TriggerClientEvent(_G.APIServer.resource .. "objects:destroy", -1, self.remoteId)
+    TriggerClientEvent(_G.APIShared.resource .. "objects:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed object (%d, %s)", self.remoteId, self.data.model)
@@ -899,7 +920,7 @@ function Player:__init__()
         string.format("Created new player (%d)", self.playerId)
     )
 
-    TriggerEvent(_G.APIServer.resource .. ":onPlayerCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onPlayerCreated", self)
 end
 
 function Player:getPed()
@@ -913,8 +934,8 @@ function Player:setVar(key, value)
 
     self.variables[key] = value
 
-    TriggerClientEvent(_G.APIServer.resource .. ":onPlayerVariableChange", self.playerId, key, value)
-    TriggerEvent(_G.APIServer.resource .. ":onPlayerVariableChange", self, key, value)
+    TriggerClientEvent(_G.APIShared.resource .. ":onPlayerVariableChange", self.playerId, key, value)
+    TriggerEvent(_G.APIShared.resource .. ":onPlayerVariableChange", self, key, value)
 end
 
 ---@param key string
