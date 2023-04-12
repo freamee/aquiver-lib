@@ -40,13 +40,20 @@ function Blip:__init__()
 
     TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
 
-    --     TriggerClientEvent("AquiverLib:Object:Create", -1, self.remoteId, self.data)
+    self:createForPlayer(-1)
+end
+
+function Blip:createForPlayer(source)
+    TriggerClientEvent(_G.APIShared.resource .. "blips:create", source, self.remoteId, self.data)
 end
 
 ---@param colorId number
 function Blip:setColor(colorId)
+    if self.data.color == colorId then return end
+
     self.data.color = colorId
-    --     TriggerClientEvent("AquiverLib:Blip:Update:Color", -1, self.remoteId, colorId)
+
+    TriggerClientEvent(_G.APIShared.resource .. "blips:set:color", -1, self.remoteId, colorId)
 end
 
 ---@param vec3 vector3
@@ -54,7 +61,8 @@ function Blip:setPosition(vec3)
     if self.data.pos.x == vec3.x and self.data.pos.y == vec3.y and self.data.pos.z == vec3.z then return end
 
     self.data.pos = vec3
-    --     TriggerClientEvent("AquiverLib:Blip:Update:Position", -1, self.remoteId, x, y, z)
+
+    TriggerClientEvent(_G.APIShared.resource .. "blips:set:position", -1, self.remoteId, x, y, z)
 end
 
 function Blip:destroy()
@@ -63,7 +71,8 @@ function Blip:destroy()
     end
 
     TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
-    -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    TriggerClientEvent(_G.APIShared.resource .. "blips:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed blip (%d)", self.remoteId)
