@@ -3,6 +3,7 @@
 ---@field color { r:number; g:number; b:number; a:number; }
 ---@field sprite number
 ---@field range number
+---@field streamDistance number
 ---@field dimension number
 ---@field variables table
 

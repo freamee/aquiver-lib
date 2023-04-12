@@ -116,6 +116,10 @@ AddEventHandler("onResourceStart", function(resourceName)
     })
 end)
 
+AddEventHandler(_G.APIShared.resource .. ":onActionshapeCreated", function(a)
+    print(getmetatable(a))
+end)
+
 end)
 __bundle_register("server.events.events", function(require, _LOADED, __bundle_register, __bundle_modules)
 require("server.events.events_object")
@@ -353,6 +357,7 @@ __bundle_register("server.gameobjects.actionshape.actionshape", function(require
 ---@field color { r:number; g:number; b:number; a:number; }
 ---@field sprite number
 ---@field range number
+---@field streamDistance number
 ---@field dimension number
 ---@field variables table
 

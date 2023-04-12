@@ -107,7 +107,7 @@ Citizen.CreateThread(function()
 
         for k, v in pairs(_G.APIClient.Managers.ActionshapeManager.shapes) do
             local dist = v:dist(playerCoords)
-            if dist < 20.0 then
+            if dist < v.data.streamDistance then
                 v:addStream()
             else
                 v:removeStream()
