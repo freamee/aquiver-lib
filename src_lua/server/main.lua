@@ -68,6 +68,7 @@ AddEventHandler("onResourceStart", function(resourceName)
         range = 5.0,
         sprite = 1,
         variables = {},
-        color = { r = 0, g = 0, b = 200, a = 200 }
+        color = { r = 0, g = 0, b = 200, a = 200 },
+        streamDistance = 10.0
     })
 end)

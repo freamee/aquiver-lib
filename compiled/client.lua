@@ -47,16 +47,22 @@ local Shared = require("shared.shared")
 local Config = require("client.config")
 local Managers = require("client.managers.managers")
 local Helpers = require("client.helpers.helpers")
+local Game = require("client.game.game")
 
 _G.APIShared = Shared
 
 _G.APIClient = {}
+_G.APIClient.Game = Game
 _G.APIClient.Managers = Managers
 _G.APIClient.Helpers = Helpers
 _G.APIClient.CONFIG = Config
 
 -- Events needs to be loaded after the _G.APIClient initialized.
 require("client.events.events")
+
+CreateThread(function()
+    _G.APIClient.Game.Raycast:enable(true)
+end)
 
 end)
 __bundle_register("client.events.events", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -254,6 +260,116 @@ Citizen.CreateThread(function()
         Citizen.Wait(1000)
     end
 end)
+
+end)
+__bundle_register("client.game.game", function(require, _LOADED, __bundle_register, __bundle_modules)
+local Raycast = require("client.game.raycast")
+
+local Game = {
+    Raycast = Raycast.new()
+}
+
+return Game
+
+end)
+__bundle_register("client.game.raycast", function(require, _LOADED, __bundle_register, __bundle_modules)
+---@class Client_RaycastSystem
+---@field private isEnabled boolean
+---@field private currentHitHandle number | nil
+---@field renderInterval Interval_Class
+---@field findInterval Interval_Class
+local Raycast = {}
+Raycast.__index = Raycast
+
+Raycast.new = function()
+    local self = setmetatable({}, Raycast)
+
+    self.isEnabled = false
+    self.currentHitHandle = nil
+
+    Citizen.CreateThread(function()
+        self.renderInterval = _G.APIShared.Helpers.Interval.new(1, function()
+            _G.APIClient.Helpers:drawText2D(0.5, 0.5, "Ray")
+        end)
+        self.findInterval = _G.APIShared.Helpers.Interval.new(300, function()
+            local coords, normal = GetWorldCoordFromScreenCoord(0.5, 0.5)
+            local destination = coords + normal * 8
+            local handle = StartShapeTestCapsule(
+                coords.x,
+                coords.y,
+                coords.z,
+                destination.x,
+                destination.y,
+                destination.z,
+                0.15,
+                16,
+                PlayerPedId(),
+                4
+            )
+
+            local _, hit, endCoords, surfaceNormal, hitHandle = GetShapeTestResult(handle)
+
+            if hit and DoesEntityExist(hitHandle) then
+                self:setEntityHandle(hitHandle)
+            else
+                self:setEntityHandle(nil)
+            end
+        end)
+        -- self.renderInterval = _G.SharedGlobals.Helpers.Interval.new(1, function()
+        --     _G.ClientGlobals.Helpers.UtilsHelper:drawSprite2D({
+        --         screenX = 0.5,
+        --         screenY = 0.5,
+        --         textureDict = "mphud",
+        --         textureName = "spectating",
+        --         scale = 0.75,
+        --         rotation = 0,
+        --         r = 255,
+        --         g = 255,
+        --         b = 255,
+        --         a = 200
+        --     })
+        -- end)
+    end)
+
+    return self
+end
+
+---@param handleId number | nil
+function Raycast:setEntityHandle(handleId)
+    if self.currentHitHandle == handleId then return end
+
+    self.currentHitHandle = handleId
+
+    if self.currentHitHandle then
+        if self.renderInterval then
+            self.renderInterval:start()
+        end
+    else
+        if self.renderInterval then
+            self.renderInterval:stop()
+        end
+    end
+end
+
+---@param state boolean
+function Raycast:enable(state)
+    if self.isEnabled == state then return end
+
+    self.isEnabled = state
+
+    if self.isEnabled then
+        if self.findInterval then
+            self.findInterval:start()
+        end
+    else
+        if self.findInterval then
+            self.findInterval:stop()
+        end
+        self:setEntityHandle(nil)
+    end
+end
+
+return Raycast
 
 end)
 __bundle_register("client.helpers.helpers", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -1112,9 +1228,9 @@ end)
 __bundle_register("shared.helpers.intervals.interval_class", function(require, _LOADED, __bundle_register, __bundle_modules)
 ---@class Interval_Class
 ---@field timeMS number
----@field cb function
+---@field private cb function
 ---@field private isStarted boolean
----@field threadId number
+---@field private threadId number
 local Interval = {}
 Interval.__index = Interval
 

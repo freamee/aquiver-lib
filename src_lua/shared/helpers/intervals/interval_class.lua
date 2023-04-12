@@ -1,8 +1,8 @@
 ---@class Interval_Class
 ---@field timeMS number
----@field cb function
+---@field private cb function
 ---@field private isStarted boolean
----@field threadId number
+---@field private threadId number
 local Interval = {}
 Interval.__index = Interval
 

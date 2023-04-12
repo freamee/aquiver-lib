@@ -112,7 +112,8 @@ AddEventHandler("onResourceStart", function(resourceName)
         range = 5.0,
         sprite = 1,
         variables = {},
-        color = { r = 0, g = 0, b = 200, a = 200 }
+        color = { r = 0, g = 0, b = 200, a = 200 },
+        streamDistance = 10.0
     })
 end)
 
@@ -1212,9 +1213,9 @@ end)
 __bundle_register("shared.helpers.intervals.interval_class", function(require, _LOADED, __bundle_register, __bundle_modules)
 ---@class Interval_Class
 ---@field timeMS number
----@field cb function
+---@field private cb function
 ---@field private isStarted boolean
----@field threadId number
+---@field private threadId number
 local Interval = {}
 Interval.__index = Interval
 
