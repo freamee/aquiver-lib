@@ -84,23 +84,22 @@ end)
 AddEventHandler("onResourceStart", function(resourceName)
     if _G.APIServer.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
-
-    _G.APIServer.Managers.ObjectManager:createObject({
-        dimension = 0,
-        model = "prop_wooden_barrel",
-        rx = 0,
-        ry = 0,
-        rz = 0,
-        variables = {},
-        x = 2439,
-        y = 3773,
-        z = 41
-    })
 end)
 
 end)
 __bundle_register("server.events.events", function(require, _LOADED, __bundle_register, __bundle_modules)
 require("server.events.events_object")
+require("server.events.events_ped")
+
+end)
+__bundle_register("server.events.events_ped", function(require, _LOADED, __bundle_register, __bundle_modules)
+RegisterNetEvent(_G.APIServer.resource .. "peds:request:data", function()
+    local playerId = source
+
+    for k, v in pairs(_G.APIServer.Managers.PedManager.peds) do
+        v:createForPlayer(playerId)
+    end
+end)
 
 end)
 __bundle_register("server.events.events_object", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -233,7 +232,13 @@ function Ped:__init__()
         string.format("Created new ped (%d, %s)", self.remoteId, self.data.model)
     )
 
+    self:createForPlayer(-1)
+
     TriggerEvent(_G.APIServer.resource .. ":onPedCreated", self)
+end
+
+function Ped:createForPlayer(source)
+    TriggerClientEvent(_G.APIServer.resource .. "peds:create", source, self.remoteId, self.data)
 end
 
 function Ped:destroy()
@@ -242,7 +247,8 @@ function Ped:destroy()
     end
 
     TriggerEvent(_G.APIServer.resource .. "onPedDestroyed", self)
-    -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    TriggerClientEvent(_G.APIServer.resource .. "peds:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed ped (%d, %s)", self.remoteId, self.data.model)
@@ -1069,6 +1075,7 @@ local Helpers = require("shared.helpers.helpers")
 local Config = require("shared.config")
 
 local Shared = {}
+Shared.resource = GetCurrentResourceName() --[[@as string]]
 Shared.Helpers = Helpers
 Shared.CONFIG = Config
 
@@ -1100,7 +1107,7 @@ local Logger = {}
 ---@param toJSON? boolean
 function Logger:debug(content, toJSON)
     local f = ""
-    f = "->" .. " ^3"
+    f = string.format("[%s] -> ^3", _G.APIShared.resource)
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -1113,7 +1120,7 @@ end
 ---@param toJSON? boolean
 function Logger:error(content, toJSON)
     local f = ""
-    f = "->" .. " ^1"
+    f = string.format("[%s] -> ^1", _G.APIShared.resource)
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -1126,7 +1133,7 @@ end
 ---@param toJSON? boolean
 function Logger:info(content, toJSON)
     local f = ""
-    f = "->" .. " ^5"
+    f = string.format("[%s] -> ^5", _G.APIShared.resource)
 
     content = toJSON and json.encode(content, { indent = true }) or content
 

@@ -34,7 +34,13 @@ function Ped:__init__()
         string.format("Created new ped (%d, %s)", self.remoteId, self.data.model)
     )
 
+    self:createForPlayer(-1)
+
     TriggerEvent(_G.APIServer.resource .. ":onPedCreated", self)
+end
+
+function Ped:createForPlayer(source)
+    TriggerClientEvent(_G.APIServer.resource .. "peds:create", source, self.remoteId, self.data)
 end
 
 function Ped:destroy()
@@ -43,7 +49,8 @@ function Ped:destroy()
     end
 
     TriggerEvent(_G.APIServer.resource .. "onPedDestroyed", self)
-    -- --         TriggerClientEvent("AquiverLib:Object:Destroy", self.remoteId)
+
+    TriggerClientEvent(_G.APIServer.resource .. "peds:destroy", -1, self.remoteId)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed ped (%d, %s)", self.remoteId, self.data.model)

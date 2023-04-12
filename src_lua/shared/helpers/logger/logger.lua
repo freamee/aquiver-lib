@@ -4,7 +4,7 @@ local Logger = {}
 ---@param toJSON? boolean
 function Logger:debug(content, toJSON)
     local f = ""
-    f = "->" .. " ^3"
+    f = string.format("[%s] -> ^3", _G.APIShared.resource)
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -17,7 +17,7 @@ end
 ---@param toJSON? boolean
 function Logger:error(content, toJSON)
     local f = ""
-    f = "->" .. " ^1"
+    f = string.format("[%s] -> ^1", _G.APIShared.resource)
 
     content = toJSON and json.encode(content, { indent = true }) or content
 
@@ -30,7 +30,7 @@ end
 ---@param toJSON? boolean
 function Logger:info(content, toJSON)
     local f = ""
-    f = "->" .. " ^5"
+    f = string.format("[%s] -> ^5", _G.APIShared.resource)
 
     content = toJSON and json.encode(content, { indent = true }) or content
 

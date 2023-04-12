@@ -22,7 +22,7 @@ Object.new = function(remoteId, data)
 end
 
 function Object:__init__()
-    TriggerEvent(_G.APIClient.resource .. ":onObjectCreated", self)
+    TriggerEvent(_G.APIShared.resource .. ":onObjectCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new object (%d, %s)", self.remoteId, self.data.model)
@@ -48,7 +48,7 @@ function Object:addStream()
 
     self.objectHandle = obj
 
-    TriggerEvent(_G.APIClient.resource .. "onObjectStreamedIn", self)
+    TriggerEvent(_G.APIShared.resource .. "onObjectStreamedIn", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Object streamed in (%d, %s)", self.remoteId, self.data.model)
@@ -64,7 +64,7 @@ function Object:removeStream()
 
     self.isStreamed = false
 
-    TriggerEvent(_G.APIClient.resource .. "onObjectStreamedOut", self)
+    TriggerEvent(_G.APIShared.resource .. "onObjectStreamedOut", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Object streamed out (%d, %s)", self.remoteId, self.data.model)
@@ -89,7 +89,7 @@ function Object:setVar(key, value)
 
     self.data.variables[key] = value
 
-    TriggerEvent(_G.APIClient.resource .. ":onObjectVariableChange", self, key, value)
+    TriggerEvent(_G.APIShared.resource .. ":onObjectVariableChange", self, key, value)
 end
 
 ---@param vec3 vector3
@@ -135,7 +135,7 @@ function Object:destroy()
         _G.APIClient.Managers.ObjectManager.objects[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIClient.resource .. "onObjectDestroyed", self)
+    TriggerEvent(_G.APIShared.resource .. "onObjectDestroyed", self)
 
     if DoesEntityExist(self.objectHandle) then
         DeleteEntity(self.objectHandle)

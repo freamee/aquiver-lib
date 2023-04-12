@@ -1,27 +1,27 @@
-RegisterNetEvent(_G.APIClient.resource .. "objects:create", function(remoteId, data)
+RegisterNetEvent(_G.APIShared.resource .. "objects:create", function(remoteId, data)
     _G.APIClient.Managers.ObjectManager:createObject(remoteId, data)
 end)
-RegisterNetEvent(_G.APIClient.resource .. "objects:destroy", function(remoteId)
+RegisterNetEvent(_G.APIShared.resource .. "objects:destroy", function(remoteId)
     local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
     if not object then return end
     object:destroy()
 end)
-RegisterNetEvent(_G.APIClient.resource .. "objects:set:position", function(remoteId, x, y, z)
+RegisterNetEvent(_G.APIShared.resource .. "objects:set:position", function(remoteId, x, y, z)
     local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
     if not object then return end
     object:setPosition(vector3(x, y, z))
 end)
-RegisterNetEvent(_G.APIClient.resource .. "objects:set:rotation", function(remoteId, rx, ry, rz)
+RegisterNetEvent(_G.APIShared.resource .. "objects:set:rotation", function(remoteId, rx, ry, rz)
     local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
     if not object then return end
     object:setRotation(vector3(rx, ry, rz))
 end)
-RegisterNetEvent(_G.APIClient.resource .. "objects:set:model", function(remoteId, model)
+RegisterNetEvent(_G.APIShared.resource .. "objects:set:model", function(remoteId, model)
     local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
     if not object then return end
     object:setModel(model)
 end)
-RegisterNetEvent(_G.APIClient.resource .. "objects:set:variablekey", function(remoteId, key, value)
+RegisterNetEvent(_G.APIShared.resource .. "objects:set:variablekey", function(remoteId, key, value)
     local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
     if not object then return end
     object:setVar(key, value)
@@ -29,7 +29,7 @@ end)
 
 -- Destroy the objects when the resource is stopped.
 AddEventHandler("onResourceStop", function(resourceName)
-    if _G.APIClient.resource ~= resourceName then return end
+    if _G.APIShared.resource ~= resourceName then return end
 
     for k, v in pairs(_G.APIClient.Managers.ObjectManager.objects) do
         v:destroy()
@@ -41,7 +41,7 @@ Citizen.CreateThread(function()
     while true do
         if NetworkIsPlayerActive(PlayerId()) then
             -- Request Data from server.
-            TriggerServerEvent(_G.APIClient.resource .. "objects:request:data")
+            TriggerServerEvent(_G.APIShared.resource .. "objects:request:data")
             break
         end
 
