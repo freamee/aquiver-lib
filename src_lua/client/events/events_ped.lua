@@ -6,6 +6,16 @@ RegisterNetEvent(_G.APIShared.resource .. "peds:destroy", function(remoteId)
     if not ped then return end
     ped:destroy()
 end)
+RegisterNetEvent(_G.APIShared.resource .. "peds:set:scenario", function(remoteId, scenario)
+    local ped = _G.APIClient.Managers.PedManager:getPed(remoteId)
+    if not ped then return end
+    ped:setScenario(scenario)
+end)
+RegisterNetEvent(_G.APIShared.resource .. "peds:set:animation", function(remoteId, dict, name, flag)
+    local ped = _G.APIClient.Managers.PedManager:getPed(remoteId)
+    if not ped then return end
+    ped:setAnimation(dict, name, flag)
+end)
 
 -- Destroy the objects when the resource is stopped.
 AddEventHandler("onResourceStop", function(resourceName)

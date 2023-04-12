@@ -63,6 +63,8 @@ function Ped:addStream()
 
     -- Re-apply scenario.
     self:setScenario(self.data.scenario)
+    -- Re-apply animation.
+    self:setAnimation(self.data.animDict, self.data.animName, self.data.animFlag)
 
     if self.data.questionMark or self.data.name then
         CreateThread(function()
@@ -144,6 +146,44 @@ function Ped:setScenario(scenario)
 
     if self.data.scenario and DoesEntityExist(self.pedHandle) then
         TaskStartScenarioInPlace(self.pedHandle, self.data.scenario, 0, false)
+    end
+end
+
+function Ped:setAnimation(dict, name, flag)
+    self.data.animDict = dict
+    self.data.animName = name
+    self.data.animFlag = flag
+
+    if self.data.animDict and self.data.animName and self.data.animFlag and DoesEntityExist(self.pedHandle) then
+        local tries, failed = 0, false
+
+        RequestAnimDict(self.data.animDict)
+        while not HasAnimDictLoaded(self.data.animDict) and not failed do
+            tries = tries + 1
+
+            if tries > 100 then
+                failed = true
+                _G.APIShared.Helpers.Logger:error("Failed to load animDict. (PED)")
+            end
+
+            Citizen.Wait(50)
+        end
+
+        if not failed then
+            TaskPlayAnim(
+                self.pedHandle,
+                self.data.animDict,
+                self.data.animName,
+                1.0,
+                1.0,
+                -1,
+                tonumber(self.data.animFlag),
+                1.0,
+                false,
+                false,
+                false
+            )
+        end
     end
 end
 

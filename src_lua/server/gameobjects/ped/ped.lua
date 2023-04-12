@@ -43,6 +43,26 @@ function Ped:createForPlayer(source)
     TriggerClientEvent(_G.APIShared.resource .. "peds:create", source, self.remoteId, self.data)
 end
 
+---@param scenario string
+function Ped:setScenario(scenario)
+    if self.data.scenario == scenario then return end
+
+    self.data.scenario = scenario
+
+    TriggerClientEvent(_G.APIShared.resource .. "peds:set:scenario", -1, self.remoteId, self.data.scenario)
+end
+
+---@param dict string
+---@param name string
+---@param flag number
+function Ped:playAnimation(dict, name, flag)
+    self.data.animDict = dict
+    self.data.animName = name
+    self.data.animFlag = flag
+
+    TriggerClientEvent(_G.APIShared.resource .. "peds:set:animation", -1, self.remoteId, dict, name, flag)
+end
+
 function Ped:destroy()
     if _G.APIServer.Managers.PedManager.peds[self.remoteId] then
         _G.APIServer.Managers.PedManager.peds[self.remoteId] = nil
