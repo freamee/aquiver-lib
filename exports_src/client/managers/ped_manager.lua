@@ -29,4 +29,12 @@ function PedManager:getPed(remoteId)
     return self.peds[remoteId]
 end
 
+function PedManager:atHandle(handleId)
+    for k, v in pairs(self.peds) do
+        if v.pedHandle == handleId then
+            return v
+        end
+    end
+end
+
 return PedManager

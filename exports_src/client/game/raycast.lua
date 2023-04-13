@@ -1,6 +1,6 @@
 ---@class Client_RaycastSystem
 ---@field private isEnabled boolean
----@field private currentHitHandle number | nil
+---@field protected currentHitHandle number | nil
 ---@field renderInterval Interval_Class
 ---@field findInterval Interval_Class
 local Raycast = {}
@@ -35,10 +35,29 @@ Raycast.new = function()
             local _, hit, endCoords, surfaceNormal, hitHandle = GetShapeTestResult(handle)
 
             if hit and DoesEntityExist(hitHandle) then
-                self:setEntityHandle(hitHandle)
-            else
-                self:setEntityHandle(nil)
+                if self.currentHitHandle == hitHandle then
+                    return true
+                end
+
+                local entityType = GetEntityType(hitHandle)
+                if entityType == 1 then -- Ped entity type
+                    local ped = _G.APIClient.Managers.PedManager:atHandle(hitHandle)
+                    if ped then
+                        self:setEntityHandle(hitHandle)
+                        _G.APIShared.EventHandler:TriggerEvent("onPedRaycast", ped)
+                        return true         -- Important return here
+                    end
+                elseif entityType == 3 then -- Object entity type
+                    local object = _G.APIClient.Managers.ObjectManager:atHandle(hitHandle)
+                    if object then
+                        self:setEntityHandle(hitHandle)
+                        _G.APIShared.EventHandler:TriggerEvent("onObjectRaycast", object)
+                        return true -- Important return here
+                    end
+                end
             end
+
+            self:setEntityHandle(nil)
         end)
         -- self.renderInterval = _G.SharedGlobals.Helpers.Interval.new(1, function()
         --     _G.ClientGlobals.Helpers.UtilsHelper:drawSprite2D({
@@ -73,6 +92,8 @@ function Raycast:setEntityHandle(handleId)
         if self.renderInterval then
             self.renderInterval:stop()
         end
+
+        _G.APIShared.EventHandler:TriggerEvent("onNullRaycast")
     end
 end
 

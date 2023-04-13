@@ -71,6 +71,41 @@ function Player:notification(type, message)
     })
 end
 
+---@param menuData IMenu
+function Player:menuOpen(menuData)
+    self:sendApiMessage({
+        event = "MenuOpen",
+        menuData = menuData
+    })
+end
+
+--- Start progress for player.
+--- Callback passes the Player after the progress is finished: cb(Player)
+---@param text string
+---@param time number Time in milliseconds (MS) 1000ms-1second
+---@param cb fun()
+function Player:progress(text, time, cb)
+    if self:getVar("hasProgress") then return end
+
+    self:setVar("hasProgress", true)
+
+    self:sendApiMessage({
+        event = "StartProgress",
+        time = time,
+        text = text
+    })
+
+    SetTimeout(time, function()
+        if not self then return end
+
+        self:setVar("hasProgress", false)
+
+        if type(cb) == "function" then
+            cb()
+        end
+    end)
+end
+
 ---@param x number
 ---@param y number
 ---@param z number

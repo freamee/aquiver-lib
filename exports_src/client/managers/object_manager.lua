@@ -29,4 +29,12 @@ function ObjectManager:getObject(remoteId)
     return self.objects[remoteId]
 end
 
+function ObjectManager:atHandle(handleId)
+    for k, v in pairs(self.objects) do
+        if v.objectHandle == handleId then
+            return v
+        end
+    end
+end
+
 return ObjectManager

@@ -12,6 +12,23 @@ export default {
         if (typeof RegisteredEvents[eventName] === "function") return;
 
         RegisteredEvents[eventName] = cb;
+    },
+
+    focusNui(state: boolean) {
+        this.post("focus_nui", state);
+    },
+
+    triggerServer(eventName: string, eventArgs: any) {
+        this.post("trigger_server", {
+            event: eventName,
+            args: eventArgs
+        });
+    },
+    triggerClient(eventName: string, eventArgs: any) {
+        this.post("trigger_client", {
+            event: eventName,
+            args: eventArgs
+        });
     }
 }
 

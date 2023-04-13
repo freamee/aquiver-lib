@@ -29,4 +29,22 @@ function ActionshapeManager:getActionshape(remoteId)
     return self.shapes[remoteId]
 end
 
+---@param vec3 vector3
+function ActionshapeManager:getNearestEnteredActionShape(vec3)
+    local closest = nil
+    local rangeMeter = nil
+
+    if type(vec3) == "vector3" then
+        for k, v in pairs(self.shapes) do
+            local dist = v:dist(vec3)
+            if (rangeMeter == nil or dist < rangeMeter) and dist < v.data.range then
+                rangeMeter = dist
+                closest = v
+            end
+        end
+    end
+
+    return closest
+end
+
 return ActionshapeManager

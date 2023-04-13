@@ -23,5 +23,5 @@ ui_page 'html/index.html'
 
 files {
     'html/**',
-    'exports/**.lua'
+    'exports_compiled/client.lua'
 }
