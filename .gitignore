@@ -1,2 +1,4 @@
-compiled/client.lua
-compiled/server.lua
+exports_compiled/client.lua
+exports_compiled/server.lua
+local_compiled/server.lua
+local_compiled/client.lua
