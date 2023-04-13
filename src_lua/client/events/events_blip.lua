@@ -17,23 +17,12 @@ RegisterNetEvent(_G.APIShared.resource .. "blips:set:color", function(remoteId, 
     blip:setColor(colorId)
 end)
 
--- Destroy the objects when the resource is stopped.
-AddEventHandler("onResourceStop", function(resourceName)
-    if _G.APIShared.resource ~= resourceName then return end
-
+_G.APIShared.EventHandler:AddEvent("ScriptStopped", function()
     for k, v in pairs(_G.APIClient.Managers.BlipManager.blips) do
         v:destroy()
     end
 end)
 
-Citizen.CreateThread(function()
-    while true do
-        if NetworkIsPlayerActive(PlayerId()) then
-            -- Request Data from server.
-            TriggerServerEvent(_G.APIShared.resource .. "blips:request:data")
-            break
-        end
-
-        Citizen.Wait(500)
-    end
+_G.APIShared.EventHandler:AddEvent("PlayerLoaded", function()
+    TriggerServerEvent(_G.APIShared.resource .. "blips:request:data")
 end)

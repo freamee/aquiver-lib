@@ -15,3 +15,27 @@ _G.APIClient.CONFIG = Config
 
 -- Events needs to be loaded after the _G.APIClient initialized.
 require("client.events.events")
+
+-- Client player loading handler.
+CreateThread(function()
+    while true do
+        if NetworkIsPlayerActive(PlayerId()) then
+            _G.APIShared.EventHandler:TriggerEvent("PlayerLoaded")
+            break
+        end
+
+        Citizen.Wait(1000)
+    end
+end)
+
+AddEventHandler("onResourceStop", function(resourceName)
+    if _G.APIShared.resource ~= resourceName then return end
+
+    _G.APIShared.EventHandler:TriggerEvent("ScriptStopped")
+end)
+
+AddEventHandler("onResourceStart", function(resourceName)
+    if _G.APIShared.resource ~= resourceName then return end
+
+    _G.APIShared.EventHandler:TriggerEvent("ScriptStarted")
+end)

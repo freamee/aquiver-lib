@@ -28,6 +28,19 @@ function Player:getPed()
     return GetPlayerPed(self.playerId)
 end
 
+function Player:getDimension()
+    return GetPlayerRoutingBucket(self.playerId)
+end
+
+---@param dimension number
+function Player:setDimension(dimension)
+    local oldDimension = self:getDimension()
+    if oldDimension == dimension then return end
+
+    SetPlayerRoutingBucket(self.playerId, dimension)
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerDimensionChange", self, oldDimension, dimension)
+end
+
 ---@param key string
 ---@param value any
 function Player:setVar(key, value)
