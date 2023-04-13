@@ -14,7 +14,18 @@ Raycast.new = function()
 
     Citizen.CreateThread(function()
         self.renderInterval = _G.APIShared.Helpers.Interval.new(1, function()
-            _G.APIClient.Helpers:drawText2D(0.5, 0.5, "Ray")
+            _G.APIClient.Helpers:drawSprite2D({
+                screenX = 0.5,
+                screenY = 0.5,
+                textureDict = "mphud",
+                textureName = "spectating",
+                scale = 0.75,
+                rotation = 0,
+                r = 200,
+                g = 200,
+                b = 200,
+                a = 155
+            })
         end)
         self.findInterval = _G.APIShared.Helpers.Interval.new(300, function()
             local coords, normal = GetWorldCoordFromScreenCoord(0.5, 0.5)
@@ -59,20 +70,6 @@ Raycast.new = function()
 
             self:setEntityHandle(nil)
         end)
-        -- self.renderInterval = _G.SharedGlobals.Helpers.Interval.new(1, function()
-        --     _G.ClientGlobals.Helpers.UtilsHelper:drawSprite2D({
-        --         screenX = 0.5,
-        --         screenY = 0.5,
-        --         textureDict = "mphud",
-        --         textureName = "spectating",
-        --         scale = 0.75,
-        --         rotation = 0,
-        --         r = 255,
-        --         g = 255,
-        --         b = 255,
-        --         a = 200
-        --     })
-        -- end)
     end)
 
     return self
@@ -113,6 +110,14 @@ function Raycast:enable(state)
         end
         self:setEntityHandle(nil)
     end
+end
+
+function Raycast:hasRaycastTarget()
+    return self.currentHitHandle ~= nil
+end
+
+function Raycast:getRaycastTarget()
+    return self.currentHitHandle
 end
 
 return Raycast
