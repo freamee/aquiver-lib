@@ -22,7 +22,7 @@ Actionshape.new = function(remoteId, data)
 end
 
 function Actionshape:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onActionshapeCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new actionshape (%d)", self.remoteId)
@@ -34,7 +34,7 @@ function Actionshape:addStream()
 
     self.isStreamed = true
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeStreamedIn", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeStreamedIn", self)
 
     Citizen.CreateThread(function()
         while self.isStreamed do
@@ -62,7 +62,7 @@ function Actionshape:removeStream()
 
     self.isStreamed = false
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeStreamedOut", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeStreamedOut", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Actionshape streamed out (%d)", self.remoteId)
@@ -74,7 +74,7 @@ function Actionshape:onEnter()
 
     self.isEntered = true
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeEntered", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeEntered", self)
 end
 
 function Actionshape:onLeave()
@@ -82,7 +82,7 @@ function Actionshape:onLeave()
 
     self.isEntered = false
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeLeaved", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeLeaved", self)
 end
 
 ---@param vec3 vector3
@@ -108,7 +108,7 @@ function Actionshape:destroy()
 
     self:removeStream()
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeDestroyed", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed actionshape (%d)", self.remoteId)

@@ -36,7 +36,7 @@ function Ped:__init__()
 
     self:createForPlayer(-1)
 
-    TriggerEvent(_G.APIShared.resource .. ":onPedCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedCreated", self)
 end
 
 function Ped:createForPlayer(source)
@@ -68,7 +68,7 @@ function Ped:destroy()
         _G.APIServer.Managers.PedManager.peds[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onPedDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "peds:destroy", -1, self.remoteId)
 

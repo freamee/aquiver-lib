@@ -39,36 +39,4 @@ end)
 AddEventHandler("onResourceStart", function(resourceName)
     if _G.APIShared.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
-
-    _G.APIServer.Managers.ObjectManager:createObject({
-        dimension = 0,
-        model = "prop_barrel_02a",
-        rx = 0,
-        ry = 0,
-        rz = 0,
-        variables = {},
-        x = 2440,
-        y = 3770,
-        z = 41
-    })
-
-    _G.APIServer.Managers.PedManager:createPed({
-        dimension = 0,
-        heading = 0,
-        model = "a_m_y_beach_01",
-        name = "Steph Curry",
-        pos = vector(2430, 3770, 41),
-        questionMark = true,
-        scenario = "WORLD_HUMAN_BINOCULARS"
-    })
-
-    _G.APIServer.Managers.ActionshapeManager:createActionshape({
-        dimension = 0,
-        pos = vector3(2430, 3770, 41),
-        range = 5.0,
-        sprite = 1,
-        variables = {},
-        color = { r = 0, g = 0, b = 200, a = 200 },
-        streamDistance = 10.0
-    })
 end)

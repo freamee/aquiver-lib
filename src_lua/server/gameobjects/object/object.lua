@@ -32,7 +32,7 @@ end
 
 ---@private
 function Object:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onObjectCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectCreated", self)
 
     -- Create for everyone.
     self:createForPlayer(-1)
@@ -76,7 +76,7 @@ function Object:setVar(key, value)
         value
     )
 
-    TriggerEvent(_G.APIShared.resource .. ":onObjectVariableChange", self, key, value)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectVariableChange", self, key, value)
 
     -- // TODO: Performance increase here with some timeout.
     if type(self.data.id) == "number" then
@@ -167,7 +167,7 @@ function Object:destroy()
         _G.APIServer.Managers.ObjectManager.objects[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onObjectDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "objects:destroy", -1, self.remoteId)
 

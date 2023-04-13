@@ -21,7 +21,7 @@ function Player:__init__()
         string.format("Created new player (%d)", self.playerId)
     )
 
-    TriggerEvent(_G.APIShared.resource .. ":onPlayerCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerCreated", self)
 end
 
 function Player:getPed()
@@ -36,7 +36,7 @@ function Player:setVar(key, value)
     self.variables[key] = value
 
     TriggerClientEvent(_G.APIShared.resource .. ":onPlayerVariableChange", self.playerId, key, value)
-    TriggerEvent(_G.APIShared.resource .. ":onPlayerVariableChange", self, key, value)
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerVariableChange", self, key, value)
 end
 
 ---@param key string

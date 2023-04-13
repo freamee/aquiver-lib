@@ -60,15 +60,54 @@ _G.APIClient.CONFIG = Config
 -- Events needs to be loaded after the _G.APIClient initialized.
 require("client.events.events")
 
-CreateThread(function()
-    _G.APIClient.Game.Raycast:enable(true)
-end)
-
 end)
 __bundle_register("client.events.events", function(require, _LOADED, __bundle_register, __bundle_modules)
 require("client.events.events_object")
 require("client.events.events_ped")
 require("client.events.events_actionshape")
+require("client.events.events_blip")
+
+end)
+__bundle_register("client.events.events_blip", function(require, _LOADED, __bundle_register, __bundle_modules)
+RegisterNetEvent(_G.APIShared.resource .. "blips:create", function(remoteId, data)
+    _G.APIClient.Managers.BlipManager:createBlip(remoteId, data)
+end)
+RegisterNetEvent(_G.APIShared.resource .. "blips:destroy", function(remoteId)
+    local blip = _G.APIClient.Managers.BlipManager:getBlip(remoteId)
+    if not blip then return end
+    blip:destroy()
+end)
+RegisterNetEvent(_G.APIShared.resource .. "blips:set:position", function(remoteId, x, y, z)
+    local blip = _G.APIClient.Managers.BlipManager:getBlip(remoteId)
+    if not blip then return end
+    blip:setPosition(x, y, z)
+end)
+RegisterNetEvent(_G.APIShared.resource .. "blips:set:color", function(remoteId, colorId)
+    local blip = _G.APIClient.Managers.BlipManager:getBlip(remoteId)
+    if not blip then return end
+    blip:setColor(colorId)
+end)
+
+-- Destroy the objects when the resource is stopped.
+AddEventHandler("onResourceStop", function(resourceName)
+    if _G.APIShared.resource ~= resourceName then return end
+
+    for k, v in pairs(_G.APIClient.Managers.BlipManager.blips) do
+        v:destroy()
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        if NetworkIsPlayerActive(PlayerId()) then
+            -- Request Data from server.
+            TriggerServerEvent(_G.APIShared.resource .. "blips:request:data")
+            break
+        end
+
+        Citizen.Wait(500)
+    end
+end)
 
 end)
 __bundle_register("client.events.events_actionshape", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -509,7 +548,7 @@ function Blip:__init__()
 
     self.blipHandle = blip
 
-    TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new blip (%d)", self.remoteId)
@@ -543,7 +582,7 @@ function Blip:destroy()
         _G.APIClient.Managers.BlipManager.blips[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipDestroyed", self)
 
     if DoesBlipExist(self.blipHandle) then
         RemoveBlip(self.blipHandle)
@@ -617,7 +656,7 @@ Actionshape.new = function(remoteId, data)
 end
 
 function Actionshape:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onActionshapeCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new actionshape (%d)", self.remoteId)
@@ -629,7 +668,7 @@ function Actionshape:addStream()
 
     self.isStreamed = true
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeStreamedIn", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeStreamedIn", self)
 
     Citizen.CreateThread(function()
         while self.isStreamed do
@@ -657,7 +696,7 @@ function Actionshape:removeStream()
 
     self.isStreamed = false
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeStreamedOut", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeStreamedOut", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Actionshape streamed out (%d)", self.remoteId)
@@ -669,7 +708,7 @@ function Actionshape:onEnter()
 
     self.isEntered = true
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeEntered", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeEntered", self)
 end
 
 function Actionshape:onLeave()
@@ -677,7 +716,7 @@ function Actionshape:onLeave()
 
     self.isEntered = false
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeLeaved", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeLeaved", self)
 end
 
 ---@param vec3 vector3
@@ -703,7 +742,7 @@ function Actionshape:destroy()
 
     self:removeStream()
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeDestroyed", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Removed actionshape (%d)", self.remoteId)
@@ -773,7 +812,7 @@ Ped.new = function(remoteId, data)
 end
 
 function Ped:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onPedCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new ped (%d, %s)", self.remoteId, self.data.model)
@@ -859,7 +898,7 @@ function Ped:addStream()
         end)
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onPedStreamedIn", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedStreamedIn", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Ped streamed in (%d, %s)", self.remoteId, self.data.model)
@@ -875,7 +914,7 @@ function Ped:removeStream()
 
     self.isStreamed = false
 
-    TriggerEvent(_G.APIShared.resource .. "onPedStreamedOut", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedStreamedOut", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Ped streamed out (%d, %s)", self.remoteId, self.data.model)
@@ -943,7 +982,7 @@ function Ped:destroy()
         _G.APIClient.Managers.PedManager.peds[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onPedDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedDestroyed", self)
 
     if DoesEntityExist(self.pedHandle) then
         DeleteEntity(self.pedHandle)
@@ -1017,7 +1056,7 @@ Object.new = function(remoteId, data)
 end
 
 function Object:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onObjectCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new object (%d, %s)", self.remoteId, self.data.model)
@@ -1043,7 +1082,7 @@ function Object:addStream()
 
     self.objectHandle = obj
 
-    TriggerEvent(_G.APIShared.resource .. "onObjectStreamedIn", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectStreamedIn", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Object streamed in (%d, %s)", self.remoteId, self.data.model)
@@ -1059,7 +1098,7 @@ function Object:removeStream()
 
     self.isStreamed = false
 
-    TriggerEvent(_G.APIShared.resource .. "onObjectStreamedOut", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectStreamedOut", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Object streamed out (%d, %s)", self.remoteId, self.data.model)
@@ -1084,7 +1123,7 @@ function Object:setVar(key, value)
 
     self.data.variables[key] = value
 
-    TriggerEvent(_G.APIShared.resource .. ":onObjectVariableChange", self, key, value)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectVariableChange", self, key, value)
 end
 
 ---@param vec3 vector3
@@ -1130,7 +1169,7 @@ function Object:destroy()
         _G.APIClient.Managers.ObjectManager.objects[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onObjectDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectDestroyed", self)
 
     if DoesEntityExist(self.objectHandle) then
         DeleteEntity(self.objectHandle)
@@ -1153,13 +1192,52 @@ end)
 __bundle_register("shared.shared", function(require, _LOADED, __bundle_register, __bundle_modules)
 local Helpers = require("shared.helpers.helpers")
 local Config = require("shared.config")
+local EventHandler = require("shared.eventhandler.evenhandler")
 
 local Shared = {}
 Shared.resource = GetCurrentResourceName() --[[@as string]]
 Shared.Helpers = Helpers
 Shared.CONFIG = Config
+Shared.EventHandler = EventHandler.new()
 
 return Shared
+
+end)
+__bundle_register("shared.eventhandler.evenhandler", function(require, _LOADED, __bundle_register, __bundle_modules)
+---@class EventHandler
+---@field events table<string, fun(...)[]>
+local EventHandler = {}
+EventHandler.__index = EventHandler
+
+EventHandler.new = function()
+    local self = setmetatable({}, EventHandler)
+
+    self.events = {}
+
+    return self
+end
+
+---@param eventName string
+---@param cb fun(...)
+function EventHandler:AddEvent(eventName, cb)
+    if type(self.events[eventName]) ~= "table" then
+        self.events[eventName] = {}
+    end
+
+    self.events[eventName][#self.events[eventName] + 1] = cb
+end
+
+---@param eventName string
+---@param ... any
+function EventHandler:TriggerEvent(eventName, ...)
+    if type(self.events[eventName]) ~= "table" then return end
+
+    for i = 1, #self.events[eventName] do
+        self.events[eventName][i](...)
+    end
+end
+
+return EventHandler
 
 end)
 __bundle_register("shared.config", function(require, _LOADED, __bundle_register, __bundle_modules)

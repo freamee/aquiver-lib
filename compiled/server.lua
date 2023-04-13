@@ -83,44 +83,34 @@ end)
 AddEventHandler("onResourceStart", function(resourceName)
     if _G.APIShared.resource ~= resourceName then return end
     _G.APIServer.Managers.PlayerManager:onResourceStart()
-
-    _G.APIServer.Managers.ObjectManager:createObject({
-        dimension = 0,
-        model = "prop_barrel_02a",
-        rx = 0,
-        ry = 0,
-        rz = 0,
-        variables = {},
-        x = 2440,
-        y = 3770,
-        z = 41
-    })
-
-    _G.APIServer.Managers.PedManager:createPed({
-        dimension = 0,
-        heading = 0,
-        model = "a_m_y_beach_01",
-        name = "Steph Curry",
-        pos = vector(2430, 3770, 41),
-        questionMark = true,
-        scenario = "WORLD_HUMAN_BINOCULARS"
-    })
-
-    _G.APIServer.Managers.ActionshapeManager:createActionshape({
-        dimension = 0,
-        pos = vector3(2430, 3770, 41),
-        range = 5.0,
-        sprite = 1,
-        variables = {},
-        color = { r = 0, g = 0, b = 200, a = 200 },
-        streamDistance = 10.0
-    })
 end)
 
 end)
 __bundle_register("server.events.events", function(require, _LOADED, __bundle_register, __bundle_modules)
 require("server.events.events_object")
 require("server.events.events_ped")
+require("server.events.events_actionshape")
+require("server.events.events_blips")
+
+end)
+__bundle_register("server.events.events_blips", function(require, _LOADED, __bundle_register, __bundle_modules)
+RegisterNetEvent(_G.APIShared.resource .. "blips:request:data", function()
+    local playerId = source
+
+    for k, v in pairs(_G.APIServer.Managers.BlipManager.blips) do
+        v:createForPlayer(playerId)
+    end
+end)
+
+end)
+__bundle_register("server.events.events_actionshape", function(require, _LOADED, __bundle_register, __bundle_modules)
+RegisterNetEvent(_G.APIShared.resource .. "actionshapes:request:data", function()
+    local playerId = source
+
+    for k, v in pairs(_G.APIServer.Managers.ActionshapeManager.shapes) do
+        v:createForPlayer(playerId)
+    end
+end)
 
 end)
 __bundle_register("server.events.events_ped", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -265,7 +255,7 @@ function Ped:__init__()
 
     self:createForPlayer(-1)
 
-    TriggerEvent(_G.APIShared.resource .. ":onPedCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedCreated", self)
 end
 
 function Ped:createForPlayer(source)
@@ -297,7 +287,7 @@ function Ped:destroy()
         _G.APIServer.Managers.PedManager.peds[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onPedDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "peds:destroy", -1, self.remoteId)
 
@@ -387,7 +377,7 @@ function Actionshape:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIShared.resource .. ":onActionshapeCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeCreated", self)
     self:createForPlayer(-1)
 end
 
@@ -417,7 +407,7 @@ function Actionshape:destroy()
         _G.APIServer.Managers.ActionshapeManager.shapes[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "actionshapes:destroy", -1, self.remoteId)
 
@@ -509,7 +499,7 @@ function Blip:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipCreated", self)
 
     self:createForPlayer(-1)
 end
@@ -541,7 +531,7 @@ function Blip:destroy()
         _G.APIServer.Managers.BlipManager.blips[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "blips:destroy", -1, self.remoteId)
 
@@ -745,7 +735,7 @@ end
 
 ---@private
 function Object:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onObjectCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectCreated", self)
 
     -- Create for everyone.
     self:createForPlayer(-1)
@@ -789,7 +779,7 @@ function Object:setVar(key, value)
         value
     )
 
-    TriggerEvent(_G.APIShared.resource .. ":onObjectVariableChange", self, key, value)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectVariableChange", self, key, value)
 
     -- // TODO: Performance increase here with some timeout.
     if type(self.data.id) == "number" then
@@ -880,7 +870,7 @@ function Object:destroy()
         _G.APIServer.Managers.ObjectManager.objects[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onObjectDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onObjectDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "objects:destroy", -1, self.remoteId)
 
@@ -964,7 +954,7 @@ function Player:__init__()
         string.format("Created new player (%d)", self.playerId)
     )
 
-    TriggerEvent(_G.APIShared.resource .. ":onPlayerCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerCreated", self)
 end
 
 function Player:getPed()
@@ -979,7 +969,7 @@ function Player:setVar(key, value)
     self.variables[key] = value
 
     TriggerClientEvent(_G.APIShared.resource .. ":onPlayerVariableChange", self.playerId, key, value)
-    TriggerEvent(_G.APIShared.resource .. ":onPlayerVariableChange", self, key, value)
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerVariableChange", self, key, value)
 end
 
 ---@param key string
@@ -1138,13 +1128,52 @@ end)
 __bundle_register("shared.shared", function(require, _LOADED, __bundle_register, __bundle_modules)
 local Helpers = require("shared.helpers.helpers")
 local Config = require("shared.config")
+local EventHandler = require("shared.eventhandler.evenhandler")
 
 local Shared = {}
 Shared.resource = GetCurrentResourceName() --[[@as string]]
 Shared.Helpers = Helpers
 Shared.CONFIG = Config
+Shared.EventHandler = EventHandler.new()
 
 return Shared
+
+end)
+__bundle_register("shared.eventhandler.evenhandler", function(require, _LOADED, __bundle_register, __bundle_modules)
+---@class EventHandler
+---@field events table<string, fun(...)[]>
+local EventHandler = {}
+EventHandler.__index = EventHandler
+
+EventHandler.new = function()
+    local self = setmetatable({}, EventHandler)
+
+    self.events = {}
+
+    return self
+end
+
+---@param eventName string
+---@param cb fun(...)
+function EventHandler:AddEvent(eventName, cb)
+    if type(self.events[eventName]) ~= "table" then
+        self.events[eventName] = {}
+    end
+
+    self.events[eventName][#self.events[eventName] + 1] = cb
+end
+
+---@param eventName string
+---@param ... any
+function EventHandler:TriggerEvent(eventName, ...)
+    if type(self.events[eventName]) ~= "table" then return end
+
+    for i = 1, #self.events[eventName] do
+        self.events[eventName][i](...)
+    end
+end
+
+return EventHandler
 
 end)
 __bundle_register("shared.config", function(require, _LOADED, __bundle_register, __bundle_modules)

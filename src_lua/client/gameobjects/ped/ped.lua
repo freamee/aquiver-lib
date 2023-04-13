@@ -22,7 +22,7 @@ Ped.new = function(remoteId, data)
 end
 
 function Ped:__init__()
-    TriggerEvent(_G.APIShared.resource .. ":onPedCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new ped (%d, %s)", self.remoteId, self.data.model)
@@ -108,7 +108,7 @@ function Ped:addStream()
         end)
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onPedStreamedIn", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedStreamedIn", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Ped streamed in (%d, %s)", self.remoteId, self.data.model)
@@ -124,7 +124,7 @@ function Ped:removeStream()
 
     self.isStreamed = false
 
-    TriggerEvent(_G.APIShared.resource .. "onPedStreamedOut", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedStreamedOut", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Ped streamed out (%d, %s)", self.remoteId, self.data.model)
@@ -192,7 +192,7 @@ function Ped:destroy()
         _G.APIClient.Managers.PedManager.peds[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onPedDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onPedDestroyed", self)
 
     if DoesEntityExist(self.pedHandle) then
         DeleteEntity(self.pedHandle)

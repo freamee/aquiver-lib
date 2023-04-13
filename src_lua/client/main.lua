@@ -15,7 +15,3 @@ _G.APIClient.CONFIG = Config
 
 -- Events needs to be loaded after the _G.APIClient initialized.
 require("client.events.events")
-
-CreateThread(function()
-    _G.APIClient.Game.Raycast:enable(true)
-end)

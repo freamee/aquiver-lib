@@ -38,7 +38,7 @@ function Blip:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipCreated", self)
 
     self:createForPlayer(-1)
 end
@@ -70,7 +70,7 @@ function Blip:destroy()
         _G.APIServer.Managers.BlipManager.blips[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "blips:destroy", -1, self.remoteId)
 

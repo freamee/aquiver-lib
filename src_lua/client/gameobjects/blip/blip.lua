@@ -32,7 +32,7 @@ function Blip:__init__()
 
     self.blipHandle = blip
 
-    TriggerEvent(_G.APIShared.resource .. ":onBlipCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipCreated", self)
 
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new blip (%d)", self.remoteId)
@@ -66,7 +66,7 @@ function Blip:destroy()
         _G.APIClient.Managers.BlipManager.blips[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onBlipDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onBlipDestroyed", self)
 
     if DoesBlipExist(self.blipHandle) then
         RemoveBlip(self.blipHandle)

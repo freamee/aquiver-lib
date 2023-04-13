@@ -36,7 +36,7 @@ function Actionshape:__init__()
     self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
     self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
-    TriggerEvent(_G.APIShared.resource .. ":onActionshapeCreated", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeCreated", self)
     self:createForPlayer(-1)
 end
 
@@ -66,7 +66,7 @@ function Actionshape:destroy()
         _G.APIServer.Managers.ActionshapeManager.shapes[self.remoteId] = nil
     end
 
-    TriggerEvent(_G.APIShared.resource .. "onActionshapeDestroyed", self)
+    _G.APIShared.EventHandler:TriggerEvent("onActionshapeDestroyed", self)
 
     TriggerClientEvent(_G.APIShared.resource .. "actionshapes:destroy", -1, self.remoteId)
 
