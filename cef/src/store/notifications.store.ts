@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { playAudio } from '../plugins/audio.plugin';
+import eventPlugin from '../plugins/event.plugin';
 
 type INotification = {
     message: string;
@@ -60,11 +61,13 @@ export const useNotiStore = defineStore("NotificationStore", () => {
         }, 5000);
     }
 
-    return { notifications, sendNotification }
+    return {
+        notifications,
+        sendNotification
+    }
 });
 
-window.addEventListener("message", (ev: MessageEvent) => {
-    if (ev.data.event == "SEND_NOTIFICATION") {
-        useNotiStore()?.sendNotification(ev.data.type, ev.data.message);
-    }
+eventPlugin.on("SEND_NOTIFICATION", ({ type, message }) => {
+    const notiStore = useNotiStore();
+    notiStore.sendNotification(type, message);
 });

@@ -57,6 +57,20 @@ function Player:getVar(key)
     return self.variables[key]
 end
 
+function Player:sendApiMessage(jsonContent)
+    TriggerClientEvent("aquiver-lib:sendApiMessage", self.playerId, jsonContent)
+end
+
+---@param type "error" | "success" | "info" | "warning"
+---@param message string
+function Player:notification(type, message)
+    self:sendApiMessage({
+        event = "SEND_NOTIFICATION",
+        type = type,
+        message = message
+    })
+end
+
 ---@param x number
 ---@param y number
 ---@param z number

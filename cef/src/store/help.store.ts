@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import eventPlugin from '../plugins/event.plugin';
 
 type IHelp = {
     uid: string;
@@ -41,23 +42,23 @@ export const useHelpStore = defineStore("HelpStore", () => {
         }
     }
 
-    return { helps, addHelp, removeHelp, updateHelp }
+    return {
+        helps,
+        addHelp,
+        removeHelp,
+        updateHelp
+    }
 });
 
-window.addEventListener("message", (ev: MessageEvent) => {
-    const store = useHelpStore();
-
-    switch (ev.data.event) {
-        case "HELP_REMOVE":
-            store.removeHelp(ev.data.uid)
-            break;
-
-        case "HELP_ADD":
-            store.addHelp(ev.data)
-            break;
-
-        case "HELP_UPDATE":
-            store.updateHelp(ev.data)
-            break;
-    }
+eventPlugin.on("HELP_REMOVE", ({ uid }) => {
+    const helpStore = useHelpStore();
+    helpStore.removeHelp(uid);
+});
+eventPlugin.on("HELP_ADD", (data) => {
+    const helpStore = useHelpStore();
+    helpStore.addHelp(data);
+});
+eventPlugin.on("HELP_UPDATE", (data) => {
+    const helpStore = useHelpStore();
+    helpStore.updateHelp(data);
 });
