@@ -69,7 +69,7 @@ function Ped:addStream()
     if self.data.questionMark or self.data.name then
         CreateThread(function()
             while self.isStreamed do
-                local playerCoords = GetEntityCoords(PlayerPedId())
+                local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
                 local dist = #(playerCoords - self:getVector3Position())
                 if dist < 5 then
                     local onScreen = IsEntityOnScreen(self.pedHandle)

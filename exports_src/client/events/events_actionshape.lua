@@ -25,7 +25,7 @@ end)
 -- STREAMING HANDLER.
 Citizen.CreateThread(function()
     while true do
-        local playerCoords = GetEntityCoords(PlayerPedId())
+        local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
 
         for k, v in pairs(_G.APIClient.Managers.ActionshapeManager.shapes) do
             local dist = v:dist(playerCoords)

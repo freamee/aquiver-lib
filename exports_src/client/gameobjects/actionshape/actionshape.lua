@@ -43,9 +43,9 @@ function Actionshape:addStream()
                 vector3(self.data.pos.x, self.data.pos.y, self.data.pos.z - 1.0),
                 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0,
-                1.0, 1.0, 1.0,
+                self.data.markerSize, self.data.markerSize, self.data.markerSize,
                 self.data.color.r, self.data.color.g, self.data.color.b, self.data.color.a,
-                false, false, 2, false, nil, nil, false
+                self.data.bobUpAndDown, false, 2, self.data.rotateMarker, nil, nil, false
             )
 
             Citizen.Wait(1)

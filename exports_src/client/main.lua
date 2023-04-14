@@ -4,10 +4,12 @@ local Config = require("client.config")
 local Managers = require("client.managers.managers")
 local Helpers = require("client.helpers.helpers")
 local Game = require("client.game.game")
+local Local = require("client.localplayer.localplayer")
 
 _G.APIShared = Shared
 
 _G.APIClient = {}
+_G.APIClient.LocalPlayer = Local.new()
 _G.APIClient.Game = Game
 _G.APIClient.Managers = Managers
 _G.APIClient.Helpers = Helpers

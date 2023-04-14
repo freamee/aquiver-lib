@@ -5,6 +5,9 @@
 ---@field range number
 ---@field streamDistance number
 ---@field dimension number
+---@field bobUpAndDown boolean
+---@field rotateMarker boolean
+---@field markerSize number
 ---@field variables table
 
 ---@class API_Server_ActionshapeBase
@@ -30,11 +33,6 @@ function Actionshape:__init__()
     _G.APIShared.Helpers.Logger:debug(
         string.format("Created new actionshape (%d)", self.remoteId)
     )
-
-    self.data.display = type(self.data.display) == "number" and self.data.display or 4
-    self.data.shortRange = type(self.data.shortRange) == "boolean" and self.data.shortRange or true
-    self.data.scale = type(self.data.scale) == "number" and self.data.scale or 1.0
-    self.data.alpha = type(self.data.alpha) == "number" and self.data.alpha or 255
 
     _G.APIShared.EventHandler:TriggerEvent("onActionshapeCreated", self)
     self:createForPlayer(-1)

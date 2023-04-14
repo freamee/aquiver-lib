@@ -1,3 +1,5 @@
+local PlayerState = Player
+
 ---@class API_Server_PlayerBase
 ---@field playerId number
 ---@field private variables table<string, any>
@@ -38,6 +40,8 @@ end
 function Player:setDimension(dimension)
     local oldDimension = self:getDimension()
     if oldDimension == dimension then return end
+
+    PlayerState(self.playerId).state:set("dimension", dimension, true)
 
     SetPlayerRoutingBucket(self.playerId, dimension)
     _G.APIShared.EventHandler:TriggerEvent("onPlayerDimensionChange", self, oldDimension, dimension)

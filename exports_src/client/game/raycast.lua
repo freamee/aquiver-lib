@@ -1,6 +1,6 @@
 ---@class Client_RaycastSystem
 ---@field private isEnabled boolean
----@field protected currentHitHandle number | nil
+---@field private currentHitHandle number | nil
 ---@field renderInterval Interval_Class
 ---@field findInterval Interval_Class
 local Raycast = {}
@@ -46,7 +46,7 @@ Raycast.new = function()
             local _, hit, endCoords, surfaceNormal, hitHandle = GetShapeTestResult(handle)
 
             if hit and DoesEntityExist(hitHandle) then
-                if self.currentHitHandle == hitHandle then
+                if self:getRaycastTarget() == hitHandle then
                     return true
                 end
 
