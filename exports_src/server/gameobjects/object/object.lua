@@ -23,6 +23,11 @@ Object.new = function(remoteId, data)
     local self = setmetatable({}, Object)
 
     self.data = data
+
+    if type(self.data.variables) == "string" then
+        self.data.variables = json.decode(self.data.variables)
+    end
+
     self.remoteId = remoteId
 
     self:__init__()

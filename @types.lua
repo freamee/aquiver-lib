@@ -8,8 +8,7 @@
 ---@class IMenuEntry
 ---@field name string
 ---@field icon string
----@field eventName string
----@field eventArgs? any
+---@field callback fun()
 
 ---@class IMenu
 ---@field header string

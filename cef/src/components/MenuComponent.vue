@@ -5,7 +5,7 @@
                 {{ store.menuData.header }}
             </div>
             <div class="click-menu-entry" v-for="(menu, index) in store.menuData.menus"
-                @click.prevent.left="menuStore.executeClick(menu)">
+                @click.prevent.left="menuStore.executeClick(index + 1)">
                 <i :class="menu.icon"></i> {{ menu.name }}
             </div>
         </div>

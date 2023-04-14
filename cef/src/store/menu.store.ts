@@ -1,17 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 import eventPlugin from '../plugins/event.plugin';
+import axios from "axios";
 
 type IMenu = {
     name: string;
     icon: string;
-    eventName: string;
-    eventArgs: any;
 }
 
 type DataState = {
     opened: boolean;
-    menuData: { header: string; menus: IMenu[] };
+    menuData: {
+        header: string;
+        executeInResource: string;
+        menus: IMenu[]
+    };
 }
 
 export const useMenuStore = defineStore("MenuStore", () => {
@@ -20,6 +23,7 @@ export const useMenuStore = defineStore("MenuStore", () => {
         opened: false,
         menuData: {
             header: "Cserép",
+            executeInResource: "",
             menus: []
         }
     });
@@ -32,10 +36,10 @@ export const useMenuStore = defineStore("MenuStore", () => {
         }
     }
 
-    function executeClick({ eventArgs, eventName }: IMenu) {
-        if (eventName) {
-            eventPlugin.triggerServer(eventName, eventArgs);
-        }
+    function executeClick(index: number) {
+        axios.post(`https://${store.value.menuData.executeInResource}/menuExecuteCallback`, {
+            index: index
+        });
         store.value.opened = false;
     }
 

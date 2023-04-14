@@ -1,6 +1,7 @@
 ---@class API_Server_PlayerBase
 ---@field playerId number
 ---@field private variables table<string, any>
+---@field currentMenuData IMenu
 local Player = {}
 Player.__index = Player
 
@@ -9,6 +10,7 @@ Player.new = function(playerId)
 
     self.variables = {}
     self.playerId = playerId
+    self.currentMenuData = nil
 
     self:__init__()
 
@@ -73,9 +75,23 @@ end
 
 ---@param menuData IMenu
 function Player:menuOpen(menuData)
+    self.currentMenuData = menuData
+
+    local nuiFormat = {
+        header = menuData.header,
+        executeInResource = _G.APIShared.resource,
+        menus = {}
+    }
+    for k, v in pairs(menuData.menus) do
+        nuiFormat.menus[#nuiFormat.menus + 1] = {
+            icon = v.icon,
+            name = v.name
+        }
+    end
+
     self:sendApiMessage({
         event = "MenuOpen",
-        menuData = menuData
+        menuData = nuiFormat
     })
 end
 

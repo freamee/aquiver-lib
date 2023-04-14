@@ -39,3 +39,10 @@ AddEventHandler("onResourceStart", function(resourceName)
 
     _G.APIShared.EventHandler:TriggerEvent("ScriptStarted")
 end)
+
+RegisterNUICallback("menuExecuteCallback", function(d, cb)
+    local index = d.index
+    print(index)
+    TriggerServerEvent("menuExecuteCallback", index)
+    cb({})
+end)
