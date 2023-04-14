@@ -44,7 +44,6 @@ end)
 
 RegisterNUICallback("menuExecuteCallback", function(d, cb)
     local index = d.index
-    print(index)
     TriggerServerEvent("menuExecuteCallback", index)
     cb({})
 end)

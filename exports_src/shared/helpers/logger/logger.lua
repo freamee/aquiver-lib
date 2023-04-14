@@ -3,6 +3,8 @@ local Logger = {}
 ---@param content any
 ---@param toJSON? boolean
 function Logger:debug(content, toJSON)
+    if not _G.APIShared.CONFIG.DebugEnabled then return end
+
     local f = ""
     f = string.format("[%s] -> ^3", _G.APIShared.resource)
 
