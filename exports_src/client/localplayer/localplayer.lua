@@ -25,6 +25,10 @@ Local.new = function()
         self.dimension = value
     end)
 
+    RegisterNetEvent("aquiver-lib:sendNuiMessage", function(jsonContent)
+        SendNUIMessage(jsonContent)
+    end)
+
     return self
 end
 
@@ -38,6 +42,10 @@ end
 
 function Local:sendApiMessage(jsonContent)
     TriggerEvent("aquiver-lib:sendApiMessage", jsonContent)
+end
+
+function Local:sendNuiMessage(jsonContent)
+    TriggerEvent("aquiver-lib:sendNuiMessage", jsonContent)
 end
 
 return Local

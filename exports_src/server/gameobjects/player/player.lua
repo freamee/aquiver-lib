@@ -67,6 +67,10 @@ function Player:sendApiMessage(jsonContent)
     TriggerClientEvent("aquiver-lib:sendApiMessage", self.playerId, jsonContent)
 end
 
+function Player:sendNuiMessage(jsonContent)
+    TriggerClientEvent("aquiver-lib:sendNuiMessage", self.playerId, jsonContent)
+end
+
 ---@param type "error" | "success" | "info" | "warning"
 ---@param message string
 function Player:notification(type, message)
