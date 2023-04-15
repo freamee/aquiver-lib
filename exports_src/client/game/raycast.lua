@@ -3,6 +3,8 @@
 ---@field private currentHitHandle number | nil
 ---@field renderInterval Interval_Class
 ---@field findInterval Interval_Class
+---@field outlineObject boolean
+---@field private lastObjectHandle number | nil
 local Raycast = {}
 Raycast.__index = Raycast
 
@@ -11,6 +13,7 @@ Raycast.new = function()
 
     self.isEnabled = false
     self.currentHitHandle = nil
+    self.outlineObject = false
 
     Citizen.CreateThread(function()
         self.renderInterval = _G.APIShared.Helpers.Interval.new(1, function()
@@ -82,12 +85,29 @@ function Raycast:setEntityHandle(handleId)
     self.currentHitHandle = handleId
 
     if self.currentHitHandle then
+        if self.outlineObject then
+            local entityType = GetEntityType(self.currentHitHandle)
+            if entityType == 3 then
+                if self.lastObjectHandle and self.lastObjectHandle ~= self.currentHitHandle then
+                    SetEntityDrawOutline(self.lastObjectHandle, false)
+                end
+                self.lastObjectHandle = self.currentHitHandle
+                SetEntityDrawOutline(self.lastObjectHandle, true)
+            end
+        end
+
         if self.renderInterval then
             self.renderInterval:start()
         end
     else
         if self.renderInterval then
             self.renderInterval:stop()
+        end
+
+        if self.outlineObject then
+            if DoesEntityExist(self.lastObjectHandle) then
+                SetEntityDrawOutline(self.lastObjectHandle, false)
+            end
         end
 
         _G.APIShared.EventHandler:TriggerEvent("onNullRaycast")
