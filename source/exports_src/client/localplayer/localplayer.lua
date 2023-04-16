@@ -25,7 +25,7 @@ Local.new = function()
         self.dimension = value
     end)
 
-    AddStateBagChangeHandler("attachments%axe", nil, function(bagName, key, value)
+    AddStateBagChangeHandler("attachments", nil, function(bagName, key, value)
         local ply = GetPlayerFromStateBagName(bagName)
         if ply == 0 then return end
 

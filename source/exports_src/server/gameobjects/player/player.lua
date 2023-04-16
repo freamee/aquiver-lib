@@ -3,6 +3,7 @@ local PlayerState = Player
 ---@class API_Server_PlayerBase
 ---@field playerId number
 ---@field private variables table<string, any>
+---@field private attachments table<string, boolean>
 ---@field currentMenuData IMenu
 local Player = {}
 Player.__index = Player
@@ -11,6 +12,7 @@ Player.new = function(playerId)
     local self = setmetatable({}, Player)
 
     self.variables = {}
+    self.attachments = {}
     self.playerId = playerId
     self.currentMenuData = nil
 
@@ -72,15 +74,29 @@ function Player:sendNuiMessage(jsonContent)
 end
 
 function Player:addAttachment(attachmentName)
-    PlayerState(self.playerId).state:set("attachments%" .. attachmentName, true, true)
+    if not _G.APIShared.AttachmentManager:exist(attachmentName) then
+        _G.APIShared.Helpers.Logger:error(
+            string.format("Attachment %s not registered.", attachmentName)
+        )
+        return
+    end
+
+    if self:hasAttachment(attachmentName) then return end
+
+    self.attachments[attachmentName] = true
+
+    PlayerState(self.playerId).state:set("attachments", self.attachments, true)
 end
 
 function Player:removeAttachment(attachmentName)
-    PlayerState(self.playerId).state:set("attachment%" .. attachmentName, false, true)
+    if not self:hasAttachment(attachmentName) then return end
+
+    self.attachments[attachmentName] = nil
+    PlayerState(self.playerId).state:set("attachments", self.attachments, true)
 end
 
 function Player:hasAttachment(attachmentName)
-    return PlayerState(self.playerId).state["attachment%" .. attachmentName]
+    return self.attachments[attachmentName] and true or false
 end
 
 ---@param type "error" | "success" | "info" | "warning"
