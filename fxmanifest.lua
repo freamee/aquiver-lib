@@ -12,16 +12,16 @@ dependencies {
 }
 
 server_scripts {
-    'local_compiled/server.lua',
+    'compiled/local/server.lua',
 }
 
 client_scripts {
-    'local_compiled/client.lua'
+    'compiled/local/client.lua'
 }
 
-ui_page 'html/index.html'
+ui_page 'compiled/html/index.html'
 
 files {
-    'html/**',
-    'exports_compiled/client.lua'
+    'compiled/html/**',
+    'compiled/exports/client.lua'
 }

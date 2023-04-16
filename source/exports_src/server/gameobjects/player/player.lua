@@ -71,6 +71,18 @@ function Player:sendNuiMessage(jsonContent)
     TriggerClientEvent("aquiver-lib:sendNuiMessage", self.playerId, jsonContent)
 end
 
+function Player:addAttachment(attachmentName)
+    PlayerState(self.playerId).state:set("attachments%" .. attachmentName, true, true)
+end
+
+function Player:removeAttachment(attachmentName)
+    PlayerState(self.playerId).state:set("attachment%" .. attachmentName, false, true)
+end
+
+function Player:hasAttachment(attachmentName)
+    return PlayerState(self.playerId).state["attachment%" .. attachmentName]
+end
+
 ---@param type "error" | "success" | "info" | "warning"
 ---@param message string
 function Player:notification(type, message)

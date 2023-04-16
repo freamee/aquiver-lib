@@ -25,6 +25,13 @@ Local.new = function()
         self.dimension = value
     end)
 
+    AddStateBagChangeHandler("attachments%axe", nil, function(bagName, key, value)
+        local ply = GetPlayerFromStateBagName(bagName)
+        if ply == 0 then return end
+
+        print(key, value)
+    end)
+
     RegisterNetEvent("aquiver-lib:sendNuiMessage", function(jsonContent)
         SendNUIMessage(jsonContent)
     end)
