@@ -1,5 +1,4 @@
--- menuExecuteCallback
-RegisterNetEvent("menuExecuteCallback", function(index)
+RegisterNetEvent(_G.APIShared.resource .. "menuExecuteCallback", function(index)
     local playerId = source
     local player = _G.APIServer.Managers.PlayerManager:getPlayer(playerId)
     if not player then return end

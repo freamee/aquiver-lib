@@ -1,10 +1,10 @@
 local Shared = require("shared.shared")
 
+_G.APIShared = Shared
+
 local Config = require("server.config")
 local Managers = require("server.managers.managers")
 local Helpers = require("server.helpers.helpers")
-
-_G.APIShared = Shared
 
 _G.APIServer = {}
 _G.APIServer.Helpers = Helpers

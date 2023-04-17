@@ -44,11 +44,11 @@ end)(require)
 __bundle_register("__root", function(require, _LOADED, __bundle_register, __bundle_modules)
 local Shared = require("shared.shared")
 
+_G.APIShared = Shared
+
 local Config = require("server.config")
 local Managers = require("server.managers.managers")
 local Helpers = require("server.helpers.helpers")
-
-_G.APIShared = Shared
 
 _G.APIServer = {}
 _G.APIServer.Helpers = Helpers
@@ -95,8 +95,7 @@ require("server.events.events_player")
 
 end)
 __bundle_register("server.events.events_player", function(require, _LOADED, __bundle_register, __bundle_modules)
--- menuExecuteCallback
-RegisterNetEvent("menuExecuteCallback", function(index)
+RegisterNetEvent(_G.APIShared.resource .. "menuExecuteCallback", function(index)
     local playerId = source
     local player = _G.APIServer.Managers.PlayerManager:getPlayer(playerId)
     if not player then return end
@@ -967,6 +966,9 @@ Player.new = function(playerId)
     self.currentMenuData = nil
 
     self:__init__()
+    self:setDimension(self:getDimension())
+
+    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", {}, true)
 
     return self
 end
@@ -990,10 +992,7 @@ end
 
 ---@param dimension number
 function Player:setDimension(dimension)
-    local oldDimension = self:getDimension()
-    if oldDimension == dimension then return end
-
-    PlayerState(self.playerId).state:set("dimension", dimension, true)
+    PlayerState(self.playerId).state:set("playerDimension", dimension, true)
 
     SetPlayerRoutingBucket(self.playerId, dimension)
     _G.APIShared.EventHandler:TriggerEvent("onPlayerDimensionChange", self, oldDimension, dimension)
@@ -1020,7 +1019,51 @@ function Player:sendApiMessage(jsonContent)
 end
 
 function Player:sendNuiMessage(jsonContent)
-    TriggerClientEvent("aquiver-lib:sendNuiMessage", self.playerId, jsonContent)
+    TriggerClientEvent(_G.APIShared.resource .. ":sendNuiMessage", self.playerId, jsonContent)
+end
+
+---@param dict string
+---@param name string
+---@param flag number
+---@param timeMS number
+---@param cb function
+function Player:playAnimationPromise(dict, name, flag, timeMS, cb)
+    if self.variables.hasAnimPromise then return end
+
+    self.variables.hasAnimPromise = true
+    self:playAnimation(dict, name, flag)
+
+    SetTimeout(timeMS, function()
+        if not self then return end
+
+        self.variables.hasAnimPromise = false
+        self:stopAnimation()
+
+        if type(cb) == "function" then
+            cb()
+        end
+    end)
+end
+
+---@param dict string
+---@param name string
+---@param flag number
+function Player:playAnimation(dict, name, flag)
+    TriggerClientEvent(_G.APIShared.resource .. "player:playAnimation", self.playerId, dict, name, flag)
+end
+
+function Player:stopAnimation()
+    TriggerClientEvent(_G.APIShared.resource .. "player:stopAnimation", self.playerId)
+end
+
+---@param state boolean
+function Player:disableMovement(state)
+    TriggerClientEvent(_G.APIShared.resource .. "player:disableMovement", self.playerId, state)
+end
+
+---@param state boolean
+function Player:freeze(state)
+    TriggerClientEvent(_G.APIShared.resource .. "player:freeze", self.playerId, state)
 end
 
 function Player:addAttachment(attachmentName)
@@ -1035,14 +1078,14 @@ function Player:addAttachment(attachmentName)
 
     self.attachments[attachmentName] = true
 
-    PlayerState(self.playerId).state:set("attachments", self.attachments, true)
+    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", self.attachments, true)
 end
 
 function Player:removeAttachment(attachmentName)
     if not self:hasAttachment(attachmentName) then return end
 
     self.attachments[attachmentName] = nil
-    PlayerState(self.playerId).state:set("attachments", self.attachments, true)
+    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", self.attachments, true)
 end
 
 function Player:hasAttachment(attachmentName)

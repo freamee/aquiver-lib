@@ -44,13 +44,13 @@ end)(require)
 __bundle_register("__root", function(require, _LOADED, __bundle_register, __bundle_modules)
 local Shared = require("shared.shared")
 
+_G.APIShared = Shared
+
 local Config = require("client.config")
 local Managers = require("client.managers.managers")
 local Helpers = require("client.helpers.helpers")
 local Game = require("client.game.game")
 local Local = require("client.localplayer.localplayer")
-
-_G.APIShared = Shared
 
 _G.APIClient = {}
 _G.APIClient.LocalPlayer = Local.new()
@@ -88,7 +88,7 @@ end)
 
 RegisterNUICallback("menuExecuteCallback", function(d, cb)
     local index = d.index
-    TriggerServerEvent("menuExecuteCallback", index)
+    TriggerServerEvent(_G.APIShared.resource .. "menuExecuteCallback", index)
     cb({})
 end)
 
@@ -160,16 +160,17 @@ end)
 Citizen.CreateThread(function()
     while true do
         local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
+        local playerDimension = _G.APIClient.LocalPlayer.dimension
 
         for k, v in pairs(_G.APIClient.Managers.ActionshapeManager.shapes) do
             local dist = v:dist(playerCoords)
-            if dist < v.data.streamDistance then
+            if dist < v.data.streamDistance and playerDimension == v.data.dimension then
                 v:addStream()
             else
                 v:removeStream()
             end
 
-            if dist < v.data.range then
+            if dist < v.data.range and playerDimension == v.data.dimension then
                 v:onEnter()
             else
                 v:onLeave()
@@ -215,10 +216,11 @@ end)
 Citizen.CreateThread(function()
     while true do
         local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
+        local playerDimension = _G.APIClient.LocalPlayer.dimension
 
         for k, v in pairs(_G.APIClient.Managers.PedManager.peds) do
             local dist = v:dist(playerCoords)
-            if dist < 20.0 then
+            if dist < 20.0 and playerDimension == v.data.dimension then
                 v:addStream()
             else
                 v:removeStream()
@@ -274,10 +276,11 @@ end)
 Citizen.CreateThread(function()
     while true do
         local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
+        local playerDimension = _G.APIClient.LocalPlayer.dimension
 
         for k, v in pairs(_G.APIClient.Managers.ObjectManager.objects) do
             local dist = v:dist(playerCoords)
-            if dist < 20.0 then
+            if dist < 20.0 and playerDimension == v.data.dimension then
                 v:addStream()
             else
                 v:removeStream()
@@ -294,6 +297,7 @@ __bundle_register("client.localplayer.localplayer", function(require, _LOADED, _
 ---@field dimension number
 ---@field cache { playerId:number; playerPed:number; playerServerId:number; playerCoords:vector3; playerHeading:number; }
 ---@field cacherInterval Interval_Class
+---@field private disableMovementInterval Interval_Class
 local Local = {}
 Local.__index = Local
 
@@ -310,21 +314,14 @@ Local.new = function()
     end)
     self.cacherInterval:start()
 
-    AddStateBagChangeHandler("dimension", nil, function(bagName, key, value)
+    AddStateBagChangeHandler("playerDimension", nil, function(bagName, key, value)
         local ply = GetPlayerFromStateBagName(bagName)
-        if ply == 0 or ply ~= self.cache.playerId then return end
+        if ply == 0 or ply ~= PlayerId() then return end
 
         self.dimension = value
     end)
 
-    AddStateBagChangeHandler("attachments", nil, function(bagName, key, value)
-        local ply = GetPlayerFromStateBagName(bagName)
-        if ply == 0 then return end
-
-        print(key, value)
-    end)
-
-    RegisterNetEvent("aquiver-lib:sendNuiMessage", function(jsonContent)
+    RegisterNetEvent(_G.APIShared.resource .. ":sendNuiMessage", function(jsonContent)
         SendNUIMessage(jsonContent)
     end)
 
@@ -344,8 +341,61 @@ function Local:sendApiMessage(jsonContent)
 end
 
 function Local:sendNuiMessage(jsonContent)
-    TriggerEvent("aquiver-lib:sendNuiMessage", jsonContent)
+    TriggerEvent(_G.APIShared.resource .. ":sendNuiMessage", jsonContent)
 end
+
+---@param dict string
+---@param name string
+---@param flag number
+function Local:playAnimation(dict, name, flag)
+    local playerPed = PlayerPedId()
+    RequestAnimDict(dict)
+    while not HasAnimDictLoaded(dict) do
+        Citizen.Wait(10)
+    end
+    TaskPlayAnim(playerPed, dict, name, 4.0, 4.0, -1, tonumber(flag), 1.0, false, false, false)
+end
+
+function Local:stopAnimation()
+    local playerPed = PlayerPedId()
+    ClearPedTasks(playerPed)
+end
+
+---@param state boolean
+function Local:disableMovement(state)
+    if not self.disableMovementInterval then
+        self.disableMovementInterval = _G.APIShared.Helpers.Interval.new(0, function()
+            DisableAllControlActions(0)
+            EnableControlAction(0, 1, true)
+            EnableControlAction(0, 2, true)
+        end)
+    end
+
+    if state then
+        self.disableMovementInterval:start()
+    else
+        self.disableMovementInterval:stop()
+    end
+end
+
+---@param state boolean
+function Local:freeze(state)
+    local playerPed = PlayerPedId()
+    FreezeEntityPosition(playerPed, state)
+end
+
+RegisterNetEvent(_G.APIShared.resource .. "player:playAnimation", function(dict, name, flag)
+    _G.APIClient.LocalPlayer:playAnimation(dict, name, flag)
+end)
+RegisterNetEvent(_G.APIShared.resource .. "player:stopAnimation", function()
+    _G.APIClient.LocalPlayer:stopAnimation()
+end)
+RegisterNetEvent(_G.APIShared.resource .. "player:disableMovement", function(state)
+    _G.APIClient.LocalPlayer:disableMovement(state)
+end)
+RegisterNetEvent(_G.APIShared.resource .. "player:freeze", function(state)
+    _G.APIClient.LocalPlayer:freeze(state)
+end)
 
 return Local
 
@@ -353,11 +403,168 @@ end)
 __bundle_register("client.game.game", function(require, _LOADED, __bundle_register, __bundle_modules)
 local Raycast = require("client.game.raycast")
 
+require("client.game.attachment_sync")
+
 local Game = {
     Raycast = Raycast.new()
 }
 
 return Game
+
+end)
+__bundle_register("client.game.attachment_sync", function(require, _LOADED, __bundle_register, __bundle_modules)
+local AttachmentSync = {}
+---@type table<number, CAttachmentSyncPlayer>
+AttachmentSync.players = {}
+
+function AttachmentSync:getPlayer(serverId)
+    return self.players[serverId]
+end
+
+function AttachmentSync:removePlayer(serverId)
+    local target = self:getPlayer(serverId)
+    if not target then return end
+
+    target:shutdown()
+
+    self.players[serverId] = nil
+
+    print("REMOVED PLAYER " .. serverId)
+end
+
+---@class CAttachmentSyncPlayer
+---@field serverId number
+---@field attachments table<string, boolean> -- Storing the attachments
+---@field attachmenthandles table<string, number> -- Storing the attachment object handles
+local TargetAttachments = {}
+TargetAttachments.__index = TargetAttachments
+
+TargetAttachments.new = function(serverId, attachments)
+    local self = setmetatable({}, TargetAttachments)
+
+    self.serverId = serverId
+    self.attachments = type(attachments) == "table" and attachments or {}
+    self.attachmenthandles = {}
+
+    self:init()
+
+    AttachmentSync.players[serverId] = self
+
+    return self
+end
+
+function TargetAttachments:init()
+    local targetPed = GetPlayerPed(GetPlayerFromServerId(self.serverId))
+    if not DoesEntityExist(targetPed) then return end
+
+    for k, v in pairs(self.attachments) do
+        local attData = _G.APIShared.AttachmentManager:get(k)
+
+        if attData and not DoesEntityExist(self.attachmenthandles[k]) then
+            local coords = GetEntityCoords(targetPed)
+            local modelHash = GetHashKey(attData.model)
+            RequestModel(modelHash)
+            while not HasModelLoaded(modelHash) do
+                Wait(10)
+            end
+            local obj = CreateObject(modelHash, coords, false, false, false)
+
+            AttachEntityToEntity(
+                obj,
+                targetPed,
+                GetPedBoneIndex(targetPed, attData.boneId),
+                attData.x, attData.y, attData.z,
+                attData.rx, attData.ry, attData.rz,
+                true, true, false, false, 2, true
+            )
+
+            self.attachmenthandles[k] = obj
+        end
+    end
+end
+
+function TargetAttachments:hasAttachment(attachmentName)
+    return self.attachments[attachmentName] and true or false
+end
+
+function TargetAttachments:deleteAttachment(attachmentName)
+    if self:hasAttachment(attachmentName) then
+        if DoesEntityExist(self.attachmenthandles[attachmentName]) then
+            DeleteEntity(self.attachmenthandles[attachmentName])
+        end
+        self.attachmenthandles[attachmentName] = nil
+        self.attachments[attachmentName] = nil
+    end
+end
+
+function TargetAttachments:updateAttachments(newAttachments)
+    local includeNewAttachment = function(attachmentName)
+        for k, v in pairs(newAttachments) do
+            if k == attachmentName then
+                return true
+            end
+        end
+        return false
+    end
+
+    -- Loop through old attachments
+    for k, v in pairs(self.attachments) do
+        -- Delete the old attachment if its not included in the new attachments table.
+        local inc = includeNewAttachment(k)
+        if not inc then
+            self:deleteAttachment(k)
+        end
+    end
+
+    self.attachments = newAttachments
+    self:init()
+end
+
+function TargetAttachments:shutdown()
+    for k, v in pairs(self.attachmenthandles) do
+        if DoesEntityExist(v) then
+            DeleteEntity(v)
+            print("DELETED OBJECT")
+        end
+    end
+    self.attachmenthandles = {}
+    self.attachments = {}
+end
+
+AddStateBagChangeHandler(_G.APIShared.resource .. "attachments", nil, function(bagName, key, value)
+    local ply = GetPlayerFromStateBagName(bagName)
+    if ply == 0 then return end
+
+    local serverId = GetPlayerServerId(ply)
+
+    if type(value) == "table" then
+        local target = AttachmentSync:getPlayer(serverId)
+        if not target then
+            target = TargetAttachments.new(serverId, value)
+        else
+            target:updateAttachments(value)
+        end
+    end
+end)
+
+CreateThread(function()
+    while true do
+        for k, v in pairs(AttachmentSync.players) do
+            local targetPed = GetPlayerPed(GetPlayerFromServerId(k))
+            if not DoesEntityExist(targetPed) then
+                AttachmentSync:removePlayer(k)
+            end
+        end
+
+        Wait(1000)
+    end
+end)
+
+_G.APIShared.EventHandler:AddEvent("ScriptStopped", function()
+    for k, v in pairs(AttachmentSync.players) do
+        AttachmentSync:removePlayer(k)
+    end
+end)
 
 end)
 __bundle_register("client.game.raycast", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -822,12 +1029,16 @@ function ActionshapeManager:getNearestEnteredActionShape(vec3)
     local closest = nil
     local rangeMeter = nil
 
+    local playerDimension = _G.APIClient.LocalPlayer.dimension
+
     if type(vec3) == "vector3" then
         for k, v in pairs(self.shapes) do
-            local dist = v:dist(vec3)
-            if (rangeMeter == nil or dist < rangeMeter) and dist < v.data.range then
-                rangeMeter = dist
-                closest = v
+            if v.data.dimension == playerDimension then
+                local dist = v:dist(vec3)
+                if (rangeMeter == nil or dist < rangeMeter) and dist < v.data.range then
+                    rangeMeter = dist
+                    closest = v
+                end
             end
         end
     end

@@ -34,12 +34,16 @@ function ActionshapeManager:getNearestEnteredActionShape(vec3)
     local closest = nil
     local rangeMeter = nil
 
+    local playerDimension = _G.APIClient.LocalPlayer.dimension
+
     if type(vec3) == "vector3" then
         for k, v in pairs(self.shapes) do
-            local dist = v:dist(vec3)
-            if (rangeMeter == nil or dist < rangeMeter) and dist < v.data.range then
-                rangeMeter = dist
-                closest = v
+            if v.data.dimension == playerDimension then
+                local dist = v:dist(vec3)
+                if (rangeMeter == nil or dist < rangeMeter) and dist < v.data.range then
+                    rangeMeter = dist
+                    closest = v
+                end
             end
         end
     end

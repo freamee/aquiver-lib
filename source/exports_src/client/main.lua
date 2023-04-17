@@ -1,12 +1,12 @@
 local Shared = require("shared.shared")
 
+_G.APIShared = Shared
+
 local Config = require("client.config")
 local Managers = require("client.managers.managers")
 local Helpers = require("client.helpers.helpers")
 local Game = require("client.game.game")
 local Local = require("client.localplayer.localplayer")
-
-_G.APIShared = Shared
 
 _G.APIClient = {}
 _G.APIClient.LocalPlayer = Local.new()
@@ -44,6 +44,6 @@ end)
 
 RegisterNUICallback("menuExecuteCallback", function(d, cb)
     local index = d.index
-    TriggerServerEvent("menuExecuteCallback", index)
+    TriggerServerEvent(_G.APIShared.resource .. "menuExecuteCallback", index)
     cb({})
 end)

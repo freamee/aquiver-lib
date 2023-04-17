@@ -26,16 +26,17 @@ end)
 Citizen.CreateThread(function()
     while true do
         local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
+        local playerDimension = _G.APIClient.LocalPlayer.dimension
 
         for k, v in pairs(_G.APIClient.Managers.ActionshapeManager.shapes) do
             local dist = v:dist(playerCoords)
-            if dist < v.data.streamDistance then
+            if dist < v.data.streamDistance and playerDimension == v.data.dimension then
                 v:addStream()
             else
                 v:removeStream()
             end
 
-            if dist < v.data.range then
+            if dist < v.data.range and playerDimension == v.data.dimension then
                 v:onEnter()
             else
                 v:onLeave()
