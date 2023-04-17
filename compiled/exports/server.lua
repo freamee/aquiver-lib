@@ -104,6 +104,16 @@ RegisterNetEvent(_G.APIShared.resource .. "menuExecuteCallback", function(index)
         player.currentMenuData.menus[index].callback()
     end
 end)
+RegisterNetEvent(_G.APIShared.resource .. "player:attachments:request:data", function()
+    local playerId = source
+
+    for k, v in pairs(_G.APIServer.Managers.PlayerManager.players) do
+        local attCount = v:getAttachmentCount()
+        if attCount > 0 then
+            TriggerClientEvent(_G.APIShared.resource .. "player:attachments:load", playerId, v.playerId, v.attachments)
+        end
+    end
+end)
 
 end)
 __bundle_register("server.events.events_blips", function(require, _LOADED, __bundle_register, __bundle_modules)
@@ -952,7 +962,7 @@ local PlayerState = Player
 ---@class API_Server_PlayerBase
 ---@field playerId number
 ---@field private variables table<string, any>
----@field private attachments table<string, boolean>
+---@field attachments table<string, boolean>
 ---@field currentMenuData IMenu
 local Player = {}
 Player.__index = Player
@@ -967,8 +977,6 @@ Player.new = function(playerId)
 
     self:__init__()
     self:setDimension(self:getDimension())
-
-    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", {}, true)
 
     return self
 end
@@ -1078,14 +1086,22 @@ function Player:addAttachment(attachmentName)
 
     self.attachments[attachmentName] = true
 
-    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", self.attachments, true)
+    TriggerClientEvent(_G.APIShared.resource .. "entity:player:addAttachment", -1, self.playerId, attachmentName)
 end
 
 function Player:removeAttachment(attachmentName)
     if not self:hasAttachment(attachmentName) then return end
 
     self.attachments[attachmentName] = nil
-    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", self.attachments, true)
+    TriggerClientEvent(_G.APIShared.resource .. "entity:player:removeAttachment", -1, self.playerId, attachmentName)
+end
+
+function Player:getAttachmentCount()
+    local count = 0
+    for k, v in pairs(self.attachments) do
+        count = count + 1
+    end
+    return count
 end
 
 function Player:hasAttachment(attachmentName)

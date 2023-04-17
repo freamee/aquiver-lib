@@ -3,7 +3,7 @@ local PlayerState = Player
 ---@class API_Server_PlayerBase
 ---@field playerId number
 ---@field private variables table<string, any>
----@field private attachments table<string, boolean>
+---@field attachments table<string, boolean>
 ---@field currentMenuData IMenu
 local Player = {}
 Player.__index = Player
@@ -18,8 +18,6 @@ Player.new = function(playerId)
 
     self:__init__()
     self:setDimension(self:getDimension())
-
-    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", {}, true)
 
     return self
 end
@@ -129,14 +127,22 @@ function Player:addAttachment(attachmentName)
 
     self.attachments[attachmentName] = true
 
-    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", self.attachments, true)
+    TriggerClientEvent(_G.APIShared.resource .. "entity:player:addAttachment", -1, self.playerId, attachmentName)
 end
 
 function Player:removeAttachment(attachmentName)
     if not self:hasAttachment(attachmentName) then return end
 
     self.attachments[attachmentName] = nil
-    PlayerState(self.playerId).state:set(_G.APIShared.resource .. "attachments", self.attachments, true)
+    TriggerClientEvent(_G.APIShared.resource .. "entity:player:removeAttachment", -1, self.playerId, attachmentName)
+end
+
+function Player:getAttachmentCount()
+    local count = 0
+    for k, v in pairs(self.attachments) do
+        count = count + 1
+    end
+    return count
 end
 
 function Player:hasAttachment(attachmentName)

@@ -413,156 +413,186 @@ return Game
 
 end)
 __bundle_register("client.game.attachment_sync", function(require, _LOADED, __bundle_register, __bundle_modules)
-local AttachmentSync = {}
----@type table<number, CAttachmentSyncPlayer>
-AttachmentSync.players = {}
-
-function AttachmentSync:getPlayer(serverId)
-    return self.players[serverId]
-end
-
-function AttachmentSync:removePlayer(serverId)
-    local target = self:getPlayer(serverId)
-    if not target then return end
-
-    target:shutdown()
-
-    self.players[serverId] = nil
-
-    print("REMOVED PLAYER " .. serverId)
-end
-
 ---@class CAttachmentSyncPlayer
 ---@field serverId number
 ---@field attachments table<string, boolean> -- Storing the attachments
 ---@field attachmenthandles table<string, number> -- Storing the attachment object handles
-local TargetAttachments = {}
-TargetAttachments.__index = TargetAttachments
+---@field private isStreamed boolean
+local Target = {}
+Target.__index = Target
 
-TargetAttachments.new = function(serverId, attachments)
-    local self = setmetatable({}, TargetAttachments)
+Target.new = function(serverId)
+    local self = setmetatable({}, Target)
 
     self.serverId = serverId
-    self.attachments = type(attachments) == "table" and attachments or {}
+    self.attachments = {}
     self.attachmenthandles = {}
-
-    self:init()
-
-    AttachmentSync.players[serverId] = self
 
     return self
 end
 
-function TargetAttachments:init()
-    local targetPed = GetPlayerPed(GetPlayerFromServerId(self.serverId))
-    if not DoesEntityExist(targetPed) then return end
-
-    for k, v in pairs(self.attachments) do
-        local attData = _G.APIShared.AttachmentManager:get(k)
-
-        if attData and not DoesEntityExist(self.attachmenthandles[k]) then
-            local coords = GetEntityCoords(targetPed)
-            local modelHash = GetHashKey(attData.model)
-            RequestModel(modelHash)
-            while not HasModelLoaded(modelHash) do
-                Wait(10)
-            end
-            local obj = CreateObject(modelHash, coords, false, false, false)
-
-            AttachEntityToEntity(
-                obj,
-                targetPed,
-                GetPedBoneIndex(targetPed, attData.boneId),
-                attData.x, attData.y, attData.z,
-                attData.rx, attData.ry, attData.rz,
-                true, true, false, false, 2, true
-            )
-
-            self.attachmenthandles[k] = obj
-        end
-    end
-end
-
-function TargetAttachments:hasAttachment(attachmentName)
+function Target:hasAttachment(attachmentName)
     return self.attachments[attachmentName] and true or false
 end
 
-function TargetAttachments:deleteAttachment(attachmentName)
-    if self:hasAttachment(attachmentName) then
-        if DoesEntityExist(self.attachmenthandles[attachmentName]) then
-            DeleteEntity(self.attachmenthandles[attachmentName])
+function Target:addAttachment(attachmentName)
+    if self:hasAttachment(attachmentName) then return end
+
+    self.attachments[attachmentName] = true
+    self:createAttachmentObject(attachmentName)
+end
+
+function Target:getAttachmentCount()
+    local count = 0
+    for k, v in pairs(self.attachments) do
+        count = count + 1
+    end
+    return count
+end
+
+function Target:removeAttachment(attachmentName)
+    if not self:hasAttachment(attachmentName) then return end
+
+    self.attachments[attachmentName] = nil
+    self:removeAttachmentObject(attachmentName)
+end
+
+function Target:removeAttachmentObject(attachmentName)
+    if not DoesEntityExist(self.attachmenthandles[attachmentName]) then return end
+
+    DeleteEntity(self.attachmenthandles[attachmentName])
+    self.attachmenthandles[attachmentName] = nil
+end
+
+function Target:createAttachmentObject(attachmentName)
+    if DoesEntityExist(self.attachmenthandles[attachmentName]) then return end
+
+    local attData = _G.APIShared.AttachmentManager:get(attachmentName)
+    if not attData then return end
+
+    local targetPed = self:getPed()
+    if targetPed then
+        local coords = GetEntityCoords(targetPed)
+        local modelHash = GetHashKey(attData.model)
+
+        RequestModel(modelHash)
+
+        while not HasModelLoaded(modelHash) do
+            Wait(10)
         end
-        self.attachmenthandles[attachmentName] = nil
-        self.attachments[attachmentName] = nil
+
+        local obj = CreateObject(modelHash, coords, false, false, false) --[[@as number]]
+
+        AttachEntityToEntity(
+            obj,
+            targetPed,
+            GetPedBoneIndex(targetPed, attData.boneId),
+            attData.x, attData.y, attData.z,
+            attData.rx, attData.ry, attData.rz,
+            true, true, false, false, 2, true
+        )
+
+        self.attachmenthandles[attachmentName] = obj
     end
 end
 
-function TargetAttachments:updateAttachments(newAttachments)
-    local includeNewAttachment = function(attachmentName)
-        for k, v in pairs(newAttachments) do
-            if k == attachmentName then
-                return true
-            end
-        end
-        return false
+function Target:shutdown()
+    for k, v in pairs(self.attachmenthandles) do
+        self:removeAttachmentObject(k)
     end
+end
 
-    -- Loop through old attachments
+function Target:init()
     for k, v in pairs(self.attachments) do
-        -- Delete the old attachment if its not included in the new attachments table.
-        local inc = includeNewAttachment(k)
-        if not inc then
-            self:deleteAttachment(k)
-        end
+        self:createAttachmentObject(k)
     end
+end
 
-    self.attachments = newAttachments
+function Target:getPed()
+    return GetPlayerPed(GetPlayerFromServerId(self.serverId))
+end
+
+function Target:addStream()
+    if self.isStreamed then return end
+
+    self.isStreamed = true
+
     self:init()
 end
 
-function TargetAttachments:shutdown()
-    for k, v in pairs(self.attachmenthandles) do
-        if DoesEntityExist(v) then
-            DeleteEntity(v)
-            print("DELETED OBJECT")
-        end
-    end
-    self.attachmenthandles = {}
-    self.attachments = {}
+function Target:removeStream()
+    if not self.isStreamed then return end
+
+    self.isStreamed = false
+
+    self:shutdown()
 end
 
-AddStateBagChangeHandler(_G.APIShared.resource .. "attachments", nil, function(bagName, key, value)
-    local ply = GetPlayerFromStateBagName(bagName)
-    if ply == 0 then return end
+local AttachmentSyncManager = {}
+---@type table<number, CAttachmentSyncPlayer>
+AttachmentSyncManager.players = {}
 
-    local serverId = GetPlayerServerId(ply)
-
-    if type(value) == "table" then
-        local target = AttachmentSync:getPlayer(serverId)
-        if not target then
-            target = TargetAttachments.new(serverId, value)
-        else
-            target:updateAttachments(value)
-        end
+function AttachmentSyncManager:getPlayer(serverId)
+    if not self.players[serverId] then
+        self.players[serverId] = Target.new(serverId)
     end
+
+    return self.players[serverId]
+end
+
+RegisterNetEvent(_G.APIShared.resource .. "player:attachments:load", function(serverId, attachmentsData)
+    local target = AttachmentSyncManager:getPlayer(serverId)
+    target.attachments = attachmentsData
+    target:removeStream()
 end)
 
-CreateThread(function()
-    while true do
-        for k, v in pairs(AttachmentSync.players) do
-            local targetPed = GetPlayerPed(GetPlayerFromServerId(k))
-            if not DoesEntityExist(targetPed) then
-                AttachmentSync:removePlayer(k)
-            end
-        end
+RegisterNetEvent(_G.APIShared.resource .. "entity:player:addAttachment", function(serverId, attachmentName)
+    local target = AttachmentSyncManager:getPlayer(serverId)
+    target:addAttachment(attachmentName)
+end)
 
-        Wait(1000)
+RegisterNetEvent(_G.APIShared.resource .. "entity:player:removeAttachment", function(serverId, attachmentName)
+    local target = AttachmentSyncManager:getPlayer(serverId)
+    target:removeAttachment(attachmentName)
+
+    local count = target:getAttachmentCount()
+    if count < 1 then
+        AttachmentSyncManager.players[serverId] = nil
     end
 end)
 
 _G.APIShared.EventHandler:AddEvent("ScriptStopped", function()
-    for k, v in pairs(AttachmentSync.players) do
-        AttachmentSync:removePlayer(k)
+    for k, v in pairs(AttachmentSyncManager.players) do
+        v:shutdown()
+    end
+end)
+
+_G.APIShared.EventHandler:AddEvent("PlayerLoaded", function()
+    TriggerServerEvent(_G.APIShared.resource .. "player:attachments:request:data")
+end)
+
+CreateThread(function()
+    while true do
+        local playerCoords = _G.APIClient.LocalPlayer.cache.playerCoords
+        local playerServerId = _G.APIClient.LocalPlayer.cache.playerServerId
+        local playerDimension = _G.APIClient.LocalPlayer.dimension
+
+        for k, v in pairs(AttachmentSyncManager.players) do
+            if v.serverId ~= playerServerId then
+                local targetPed = v:getPed()
+                if targetPed then
+                    local state = Player(k).state
+                    local dist = #(playerCoords - GetEntityCoords(targetPed))
+                    if dist < 25.0 and state.playerDimension == playerDimension then
+                        v:addStream()
+                    else
+                        v:removeStream()
+                    end
+                end
+            end
+        end
+
+        Wait(1000)
     end
 end)
 
