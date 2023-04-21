@@ -105,6 +105,17 @@ function Object:setPosition(vec3)
     end
 end
 
+---@param alpha number
+function Object:setAlpha(alpha)
+    if self.data.alpha == alpha then return end
+
+    self.data.alpha = alpha
+
+    if DoesEntityExist(self.objectHandle) then
+        SetEntityAlpha(self.objectHandle, alpha, false)
+    end
+end
+
 ---@param vec3 vector3
 function Object:setRotation(vec3)
     if self.data.rx == vec3.x and self.data.ry == vec3.y and self.data.rz == vec3.z then return end

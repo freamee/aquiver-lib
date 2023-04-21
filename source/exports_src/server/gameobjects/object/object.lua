@@ -9,6 +9,7 @@
 ---@field rz number
 ---@field variables table
 ---@field dimension number
+---@field opacity number
 ---@field resource string
 
 ---@class API_Server_ObjectBase
@@ -117,6 +118,20 @@ function Object:setPosition(vec3)
             self.data.id
         })
     end
+end
+
+---@param alpha number
+function Object:setAlpha(alpha)
+    if self.data.alpha == alpha then return end
+
+    self.data.alpha = alpha
+
+    TriggerClientEvent(
+        _G.APIShared.resource .. "objects:set:alpha",
+        -1,
+        self.remoteId,
+        self.data.alpha
+    )
 end
 
 ---@param vec3 vector3

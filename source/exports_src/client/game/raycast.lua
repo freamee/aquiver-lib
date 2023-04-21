@@ -5,6 +5,8 @@
 ---@field findInterval Interval_Class
 ---@field outlineObject boolean
 ---@field private lastObjectHandle number | nil
+---@field raycastObjectRange number
+---@field raycastPedRange number
 local Raycast = {}
 Raycast.__index = Raycast
 
@@ -14,6 +16,8 @@ Raycast.new = function()
     self.isEnabled = false
     self.currentHitHandle = nil
     self.outlineObject = false
+    self.raycastObjectRange = 3.0
+    self.raycastPedRange = 5.0
 
     Citizen.CreateThread(function()
         self.renderInterval = _G.APIShared.Helpers.Interval.new(1, function()
@@ -42,7 +46,7 @@ Raycast.new = function()
                 destination.z,
                 0.15,
                 16,
-                PlayerPedId(),
+                _G.APIClient.LocalPlayer.cache.playerPed,
                 4
             )
 
@@ -57,16 +61,22 @@ Raycast.new = function()
                 if entityType == 1 then -- Ped entity type
                     local ped = _G.APIClient.Managers.PedManager:atHandle(hitHandle)
                     if ped then
-                        self:setEntityHandle(hitHandle)
-                        _G.APIShared.EventHandler:TriggerEvent("onPedRaycast", ped)
-                        return true         -- Important return here
+                        local dist = #(GetEntityCoords(hitHandle) - _G.APIClient.LocalPlayer.cache.playerCoords)
+                        if dist < self.raycastPedRange then
+                            self:setEntityHandle(hitHandle)
+                            _G.APIShared.EventHandler:TriggerEvent("onPedRaycast", ped)
+                            return true -- Important return here
+                        end
                     end
                 elseif entityType == 3 then -- Object entity type
                     local object = _G.APIClient.Managers.ObjectManager:atHandle(hitHandle)
                     if object then
-                        self:setEntityHandle(hitHandle)
-                        _G.APIShared.EventHandler:TriggerEvent("onObjectRaycast", object)
-                        return true -- Important return here
+                        local dist = #(GetEntityCoords(hitHandle) - _G.APIClient.LocalPlayer.cache.playerCoords)
+                        if dist < self.raycastObjectRange then
+                            self:setEntityHandle(hitHandle)
+                            _G.APIShared.EventHandler:TriggerEvent("onObjectRaycast", object)
+                            return true -- Important return here
+                        end
                     end
                 end
             end

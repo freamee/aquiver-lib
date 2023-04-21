@@ -261,6 +261,11 @@ RegisterNetEvent(_G.APIShared.resource .. "objects:set:variablekey", function(re
     if not object then return end
     object:setVar(key, value)
 end)
+RegisterNetEvent(_G.APIShared.resource .. "objects:set:alpha", function(remoteId, alpha)
+    local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
+    if not object then return end
+    object:setAlpha(alpha)
+end)
 
 _G.APIShared.EventHandler:AddEvent("ScriptStopped", function()
     for k, v in pairs(_G.APIClient.Managers.ObjectManager.objects) do
@@ -605,6 +610,8 @@ __bundle_register("client.game.raycast", function(require, _LOADED, __bundle_reg
 ---@field findInterval Interval_Class
 ---@field outlineObject boolean
 ---@field private lastObjectHandle number | nil
+---@field raycastObjectRange number
+---@field raycastPedRange number
 local Raycast = {}
 Raycast.__index = Raycast
 
@@ -614,6 +621,8 @@ Raycast.new = function()
     self.isEnabled = false
     self.currentHitHandle = nil
     self.outlineObject = false
+    self.raycastObjectRange = 3.0
+    self.raycastPedRange = 5.0
 
     Citizen.CreateThread(function()
         self.renderInterval = _G.APIShared.Helpers.Interval.new(1, function()
@@ -642,7 +651,7 @@ Raycast.new = function()
                 destination.z,
                 0.15,
                 16,
-                PlayerPedId(),
+                _G.APIClient.LocalPlayer.cache.playerPed,
                 4
             )
 
@@ -657,16 +666,22 @@ Raycast.new = function()
                 if entityType == 1 then -- Ped entity type
                     local ped = _G.APIClient.Managers.PedManager:atHandle(hitHandle)
                     if ped then
-                        self:setEntityHandle(hitHandle)
-                        _G.APIShared.EventHandler:TriggerEvent("onPedRaycast", ped)
-                        return true         -- Important return here
+                        local dist = #(GetEntityCoords(hitHandle) - _G.APIClient.LocalPlayer.cache.playerCoords)
+                        if dist < self.raycastPedRange then
+                            self:setEntityHandle(hitHandle)
+                            _G.APIShared.EventHandler:TriggerEvent("onPedRaycast", ped)
+                            return true -- Important return here
+                        end
                     end
                 elseif entityType == 3 then -- Object entity type
                     local object = _G.APIClient.Managers.ObjectManager:atHandle(hitHandle)
                     if object then
-                        self:setEntityHandle(hitHandle)
-                        _G.APIShared.EventHandler:TriggerEvent("onObjectRaycast", object)
-                        return true -- Important return here
+                        local dist = #(GetEntityCoords(hitHandle) - _G.APIClient.LocalPlayer.cache.playerCoords)
+                        if dist < self.raycastObjectRange then
+                            self:setEntityHandle(hitHandle)
+                            _G.APIShared.EventHandler:TriggerEvent("onObjectRaycast", object)
+                            return true -- Important return here
+                        end
                     end
                 end
             end
@@ -1600,6 +1615,17 @@ function Object:setPosition(vec3)
 
     if DoesEntityExist(self.objectHandle) then
         SetEntityCoords(self.objectHandle, self:getVector3Position(), false, false, false, false)
+    end
+end
+
+---@param alpha number
+function Object:setAlpha(alpha)
+    if self.data.alpha == alpha then return end
+
+    self.data.alpha = alpha
+
+    if DoesEntityExist(self.objectHandle) then
+        SetEntityAlpha(self.objectHandle, alpha, false)
     end
 end
 

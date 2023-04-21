@@ -1,8 +1,6 @@
 {
     "Lua.diagnostics.libraryFiles": "Opened",
     "Lua.codeLens.enable": false,
-    "Lua.diagnostics.disableScheme": [
-        "git"
-    ],
+    "Lua.diagnostics.disableScheme": [],
     "Lua.diagnostics.enable": true
 }

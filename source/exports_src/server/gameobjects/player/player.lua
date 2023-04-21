@@ -159,26 +159,37 @@ function Player:notification(type, message)
     })
 end
 
----@param menuData IMenu
-function Player:menuOpen(menuData)
-    self.currentMenuData = menuData
-
-    local nuiFormat = {
-        header = menuData.header,
+function Player:createMenuBuilder()
+    local menu = {}
+    menu._data = {
+        header = "unknown",
         executeInResource = _G.APIShared.resource,
         menus = {}
     }
-    for k, v in pairs(menuData.menus) do
-        nuiFormat.menus[#nuiFormat.menus + 1] = {
-            icon = v.icon,
-            name = v.name
+    self.currentMenuData = {
+        header = "unknown",
+        menus = {}
+    }
+    menu.setHeader = function(header)
+        menu._data.header = header
+        self.currentMenuData.header = header
+    end
+    ---@param menuEntry IMenuEntry
+    menu.addMenu = function(menuEntry)
+        menu._data.menus[#menu._data.menus + 1] = {
+            icon = menuEntry.icon,
+            name = menuEntry.name
         }
+        self.currentMenuData.menus[#self.currentMenuData.menus + 1] = menuEntry
+    end
+    menu.open = function()
+        self:sendApiMessage({
+            event = "MenuOpen",
+            menuData = menu._data
+        })
     end
 
-    self:sendApiMessage({
-        event = "MenuOpen",
-        menuData = nuiFormat
-    })
+    return menu
 end
 
 --- Start progress for player.

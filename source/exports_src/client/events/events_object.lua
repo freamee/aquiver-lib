@@ -26,6 +26,11 @@ RegisterNetEvent(_G.APIShared.resource .. "objects:set:variablekey", function(re
     if not object then return end
     object:setVar(key, value)
 end)
+RegisterNetEvent(_G.APIShared.resource .. "objects:set:alpha", function(remoteId, alpha)
+    local object = _G.APIClient.Managers.ObjectManager:getObject(remoteId)
+    if not object then return end
+    object:setAlpha(alpha)
+end)
 
 _G.APIShared.EventHandler:AddEvent("ScriptStopped", function()
     for k, v in pairs(_G.APIClient.Managers.ObjectManager.objects) do

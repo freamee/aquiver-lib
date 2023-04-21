@@ -1,4 +1,3 @@
-exports_compiled/client.lua
-exports_compiled/server.lua
-local_compiled/server.lua
-local_compiled/client.lua
+compiled/exports/*.lua
+compiled/local/*.lua
+compiled/html
