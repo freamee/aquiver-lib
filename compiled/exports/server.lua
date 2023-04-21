@@ -1370,6 +1370,14 @@ Shared.CONFIG = Config
 Shared.EventHandler = EventHandler.new()
 Shared.AttachmentManager = AttachmentManager.new()
 
+--- Dereferencing a value. (probably item)
+---@generic T
+---@param a T
+---@return T
+function Shared:dereference(a)
+    return json.decode(json.encode(a))
+end
+
 return Shared
 
 end)
@@ -1485,6 +1493,7 @@ __bundle_register("shared.config", function(require, _LOADED, __bundle_register,
 local CONFIG = {}
 
 CONFIG.DebugEnabled = false
+CONFIG.AQUIVER_TEST_SERVER = false -- Do not mess with this variable, this one is for us for the test server.
 
 return CONFIG
 

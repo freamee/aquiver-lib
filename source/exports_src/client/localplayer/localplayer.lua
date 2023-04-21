@@ -144,6 +144,16 @@ function Local:freeze(state)
     FreezeEntityPosition(playerPed, state)
 end
 
+---@param type "error" | "success" | "info" | "warning"
+---@param message string
+function Local:notification(type, message)
+    self:sendApiMessage({
+        event = "SEND_NOTIFICATION",
+        type = type,
+        message = message
+    })
+end
+
 RegisterNetEvent(_G.APIShared.resource .. "player:playAnimation", function(dict, name, flag)
     _G.APIClient.LocalPlayer:playAnimation(dict, name, flag)
 end)
