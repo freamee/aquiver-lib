@@ -3,6 +3,7 @@
 ---@field cache { playerId:number; playerPed:number; playerServerId:number; playerCoords:vector3; playerHeading:number; }
 ---@field cacherInterval Interval_Class
 ---@field private disableMovementInterval Interval_Class
+---@field private cachedHelps table<string, IHelp>
 local Local = {}
 Local.__index = Local
 
@@ -11,6 +12,7 @@ Local.new = function()
 
     self.dimension = 0
     self.cache = {}
+    self.cachedHelps = {}
 
     self:cacheNow()
 
@@ -47,6 +49,59 @@ end
 
 function Local:sendNuiMessage(jsonContent)
     TriggerEvent(_G.APIShared.resource .. ":sendNuiMessage", jsonContent)
+end
+
+---@param helpData IHelp
+function Local:addHelp(helpData)
+    -- If help entry not exists add it.
+    if not self.cachedHelps[helpData.uid] then
+        self.cachedHelps[helpData.uid] = {
+            image = helpData.image,
+            key = helpData.key,
+            msg = helpData.msg,
+            icon = helpData.icon,
+            uid = helpData.uid
+        }
+
+        self:sendApiMessage({
+            event = "HELP_ADD",
+            helpData = self.cachedHelps[helpData.uid]
+        })
+
+        if _G.APIClient.CONFIG.HELP.HAS_SOUND then
+            PlaySoundFrontend(-1, "SELECT", "HUD_FREEMODE_SOUNDSET", true)
+        end
+    else
+        -- If help Entry exists, we update it if it differs.
+        local h = self.cachedHelps[helpData.uid]
+        if h.msg ~= helpData.msg or
+            h.key ~= helpData.key or
+            h.image ~= helpData.image or
+            h.icon ~= helpData.icon
+        then
+            h.msg = helpData.msg
+            h.key = helpData.key
+            h.image = helpData.image
+            h.icon = helpData.icon
+
+            self:sendApiMessage({
+                event = "HELP_UPDATE",
+                helpData = h
+            })
+        end
+    end
+end
+
+---@param uid string
+function Local:removeHelp(uid)
+    if not self.cachedHelps[uid] then return end
+
+    self.cachedHelps[uid] = nil
+
+    self:sendApiMessage({
+        event = "HELP_REMOVE",
+        uid = uid
+    })
 end
 
 ---@param dict string

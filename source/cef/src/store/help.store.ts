@@ -54,11 +54,11 @@ eventPlugin.on("HELP_REMOVE", ({ uid }) => {
     const helpStore = useHelpStore();
     helpStore.removeHelp(uid);
 });
-eventPlugin.on("HELP_ADD", (data) => {
+eventPlugin.on("HELP_ADD", (helpData) => {
     const helpStore = useHelpStore();
-    helpStore.addHelp(data);
+    helpStore.addHelp(helpData);
 });
-eventPlugin.on("HELP_UPDATE", (data) => {
+eventPlugin.on("HELP_UPDATE", (helpData) => {
     const helpStore = useHelpStore();
-    helpStore.updateHelp(data);
+    helpStore.updateHelp(helpData);
 });

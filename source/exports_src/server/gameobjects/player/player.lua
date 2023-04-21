@@ -115,6 +115,22 @@ function Player:freeze(state)
     TriggerClientEvent(_G.APIShared.resource .. "player:freeze", self.playerId, state)
 end
 
+---@param helpData IHelp
+function Player:addHelp(helpData)
+    self:triggerClient("PLAYER_HELP_ADD_FROM_SERVER", helpData)
+end
+
+---@param uid string
+function Player:removeHelp(uid)
+    self:triggerClient("PLAYER_HELP_REMOVE_FROM_SERVER", uid)
+end
+
+---@param eventName string
+---@param ... any
+function Player:triggerClient(eventName, ...)
+    TriggerClientEvent(eventName, ...)
+end
+
 function Player:addAttachment(attachmentName)
     if not _G.APIShared.AttachmentManager:exist(attachmentName) then
         _G.APIShared.Helpers.Logger:error(
