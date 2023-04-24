@@ -56,9 +56,11 @@ eventPlugin.on("HELP_REMOVE", ({ uid }) => {
 });
 eventPlugin.on("HELP_ADD", (helpData) => {
     const helpStore = useHelpStore();
+    console.log(JSON.stringify(helpData))
     helpStore.addHelp(helpData);
 });
 eventPlugin.on("HELP_UPDATE", (helpData) => {
     const helpStore = useHelpStore();
+    console.log(JSON.stringify(helpData))
     helpStore.updateHelp(helpData);
 });
