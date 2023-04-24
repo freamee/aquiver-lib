@@ -24,11 +24,15 @@ function PlayerManager:onPlayerConnect(playerId)
 
     self.players[playerId] = Player.new(playerId)
 
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerConnect", self.players[playerId])
+
     return self.players[playerId]
 end
 
 function PlayerManager:onPlayerQuit(playerId)
     if not self.players[playerId] then return end
+
+    _G.APIShared.EventHandler:TriggerEvent("onPlayerQuit", self.players[playerId])
 
     self.players[playerId] = nil
 end
