@@ -25,3 +25,10 @@ files {
     'compiled/html/**',
     'compiled/exports/client.lua'
 }
+
+convar_category 'Aquiver Library' {
+    'Configuration',
+    {
+        { 'Aquiver Products Test Server', 'avp_test_server', 'CV_BOOL', false }
+    }
+}

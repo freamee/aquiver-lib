@@ -1216,6 +1216,11 @@ function Player:setPosition(x, y, z)
     SetEntityCoords(self:getPed(), x, y, z, false, false, false, false)
 end
 
+---@param heading number
+function Player:setHeading(heading)
+    SetEntityHeading(self:getPed(), heading)
+end
+
 ---@return string | nil
 function Player:getIdentifier()
     if _G.APIServer.ESX then
@@ -1272,44 +1277,69 @@ function Player:getName()
 end
 
 function Player:setMoney(money)
-    if _G.APIServer.ESX then
-        local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
-        if not xPlayer then return end
-        xPlayer.setMoney(money)
+    if _G.APIShared.CONFIG.AQUIVER_TEST_SERVER then
+        self:notification(
+            "info",
+            string.format("[DEVELOPMENT-TEST]: Player:setMoney -> %d", money)
+        )
     else
+        if _G.APIServer.ESX then
+            local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
+            if not xPlayer then return end
+            xPlayer.setMoney(money)
+        else
 
+        end
     end
 end
 
 function Player:getMoney()
-    if _G.APIServer.ESX then
-        local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
-        if not xPlayer then return end
-        return xPlayer.getMoney()
+    if _G.APIShared.CONFIG.AQUIVER_TEST_SERVER then
+        return 66666
     else
-        return 0
+        if _G.APIServer.ESX then
+            local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
+            if not xPlayer then return end
+            return xPlayer.getMoney()
+        else
+            return 0
+        end
     end
 end
 
 ---@param amount number
 function Player:addMoney(amount)
-    if _G.APIServer.ESX then
-        local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
-        if not xPlayer then return end
-        xPlayer.addMoney(amount)
+    if _G.APIShared.CONFIG.AQUIVER_TEST_SERVER then
+        self:notification(
+            "info",
+            string.format("[DEVELOPMENT-TEST]: Player:addMoney -> %d", money)
+        )
     else
+        if _G.APIServer.ESX then
+            local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
+            if not xPlayer then return end
+            xPlayer.addMoney(amount)
+        else
 
+        end
     end
 end
 
 ---@param amount number
 function Player:removeMoney(amount)
-    if _G.APIServer.ESX then
-        local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
-        if not xPlayer then return end
-        xPlayer.removeMoney(amount)
+    if _G.APIShared.CONFIG.AQUIVER_TEST_SERVER then
+        self:notification(
+            "info",
+            string.format("[DEVELOPMENT-TEST]: Player:removeMoney -> %d", money)
+        )
     else
+        if _G.APIServer.ESX then
+            local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
+            if not xPlayer then return end
+            xPlayer.removeMoney(amount)
+        else
 
+        end
     end
 end
 
@@ -1327,24 +1357,38 @@ end
 ---@param accountName string
 ---@param amount number
 function Player:addAccountMoney(accountName, amount)
-    if _G.APIServer.ESX then
-        local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
-        if not xPlayer then return end
-        xPlayer.addAccountMoney(accountName, amount)
+    if _G.APIShared.CONFIG.AQUIVER_TEST_SERVER then
+        self:notification(
+            "info",
+            string.format("[DEVELOPMENT-TEST]: Player:addAccountMoney -> %s  %d", accountName, money)
+        )
     else
+        if _G.APIServer.ESX then
+            local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
+            if not xPlayer then return end
+            xPlayer.addAccountMoney(accountName, amount)
+        else
 
+        end
     end
 end
 
 ---@param accountName string
 ---@param amount number
 function Player:removeAccountMoney(accountName, amount)
-    if _G.APIServer.ESX then
-        local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
-        if not xPlayer then return end
-        xPlayer.removeAccountMoney(accountName, amount)
+    if _G.APIShared.CONFIG.AQUIVER_TEST_SERVER then
+        self:notification(
+            "info",
+            string.format("[DEVELOPMENT-TEST]: Player:removeAccountMoney -> %s  %d", accountName, money)
+        )
     else
+        if _G.APIServer.ESX then
+            local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
+            if not xPlayer then return end
+            xPlayer.removeAccountMoney(accountName, amount)
+        else
 
+        end
     end
 end
 
@@ -1369,6 +1413,14 @@ Shared.Helpers = Helpers
 Shared.CONFIG = Config
 Shared.EventHandler = EventHandler.new()
 Shared.AttachmentManager = AttachmentManager.new()
+
+--- Dereferencing a value. (probably item)
+---@generic T
+---@param a T
+---@return T
+function Shared:dereference(a)
+    return json.decode(json.encode(a))
+end
 
 return Shared
 
@@ -1485,6 +1537,12 @@ __bundle_register("shared.config", function(require, _LOADED, __bundle_register,
 local CONFIG = {}
 
 CONFIG.DebugEnabled = false
+CONFIG.AQUIVER_TEST_SERVER = false -- Do not mess with this variable, this one is for us for the test server.
+
+if GetConvar("avp_test_server", 'false') == "true" then
+    CONFIG.AQUIVER_TEST_SERVER = true
+    print("^3Aquiver Products Test Server recognized!")
+end
 
 return CONFIG
 

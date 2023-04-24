@@ -7,12 +7,14 @@
                 <div class="indicator">
                     <div v-if="a.key">{{ a.key }}</div>
                     <div class="img" :style="{
-                        backgroundImage: `url(helps/${a.image}.png)`
-                    }" v-if="a.image">
+                            backgroundImage: `url(helps/${a.image}.png)`
+                        }" v-if="a.image">
                     </div>
-                    <i v-if="a.icon" :class="a.icon"></i>
                 </div>
-                <div class="text">{{ a.msg }}</div>
+                <div class="text">
+                    <i :class="a.icon" v-if="a.icon"></i>
+                    {{ a.msg }}
+                </div>
             </div>
 
         </TransitionGroup>
@@ -34,22 +36,21 @@ $textstroke: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 .help-notification-parent {
     position: absolute;
     bottom: 40%;
-    left: 2%;
+    left: 0;
     pointer-events: none;
     text-shadow: $textstroke;
 
     .help-notification-entry {
         position: relative;
         max-width: 15vw;
-        margin: 0.1vw 0;
-        font-size: 0.8vw;
+        font-size: 0.7vw;
         color: white;
         white-space: pre-line;
         display: flex;
         align-items: center;
         padding: .25vw;
         background: linear-gradient(90deg, rgba(0, 0, 0, 0.25) 0%, transparent 100%);
-        border-left: .15vw solid rgb(155, 155, 155);
+        border-left: .15vw groove rgb(100, 100, 100);
 
         .indicator {
             position: relative;

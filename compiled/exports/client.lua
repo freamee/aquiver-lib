@@ -444,6 +444,16 @@ function Local:freeze(state)
     FreezeEntityPosition(playerPed, state)
 end
 
+---@param type "error" | "success" | "info" | "warning"
+---@param message string
+function Local:notification(type, message)
+    self:sendApiMessage({
+        event = "SEND_NOTIFICATION",
+        type = type,
+        message = message
+    })
+end
+
 RegisterNetEvent(_G.APIShared.resource .. "player:playAnimation", function(dict, name, flag)
     _G.APIClient.LocalPlayer:playAnimation(dict, name, flag)
 end)
@@ -1751,6 +1761,14 @@ Shared.CONFIG = Config
 Shared.EventHandler = EventHandler.new()
 Shared.AttachmentManager = AttachmentManager.new()
 
+--- Dereferencing a value. (probably item)
+---@generic T
+---@param a T
+---@return T
+function Shared:dereference(a)
+    return json.decode(json.encode(a))
+end
+
 return Shared
 
 end)
@@ -1866,6 +1884,12 @@ __bundle_register("shared.config", function(require, _LOADED, __bundle_register,
 local CONFIG = {}
 
 CONFIG.DebugEnabled = false
+CONFIG.AQUIVER_TEST_SERVER = false -- Do not mess with this variable, this one is for us for the test server.
+
+if GetConvar("avp_test_server", 'false') == "true" then
+    CONFIG.AQUIVER_TEST_SERVER = true
+    print("^3Aquiver Products Test Server recognized!")
+end
 
 return CONFIG
 
