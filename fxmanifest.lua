@@ -8,7 +8,8 @@ lua54 "yes"
 
 dependencies {
     '/server:4752',
-    'oxmysql'
+    'oxmysql',
+    '/onesync'
 }
 
 server_scripts {

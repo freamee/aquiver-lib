@@ -253,6 +253,10 @@ function Player:getIdentifier()
         local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
         if not xPlayer then return end
         return xPlayer.getIdentifier()
+    elseif _G.APIServer.QBCORE then
+        local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+        if not qPlayer then return end
+        return qPlayer.PlayerData.license
     else
         for _, v in pairs(GetPlayerIdentifiers(self.playerId)) do
             if string.sub(v, 1, string.len("license:")) == "license:" then
@@ -262,11 +266,18 @@ function Player:getIdentifier()
     end
 end
 
-function Player:getGroup()
+---@param permissionGroup string
+function Player:hasPermission(permissionGroup)
     if _G.APIServer.ESX then
         local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
         if not xPlayer then return end
-        return xPlayer.getGroup()
+
+        return xPlayer.getGroup() == permissionGroup
+    elseif _G.APIServer.QBCORE then
+        local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+        if not qPlayer then return end
+
+        return _G.APIServer.QBCORE.Functions.HasPermission(self.playerId, 'admin')
     else
         return "admin"
     end
@@ -277,6 +288,10 @@ function Player:getJobName()
         local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
         if not xPlayer then return end
         return xPlayer.getJob().name --[[@as string]]
+    elseif _G.APIServer.QBCORE then
+        local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+        if not qPlayer then return end
+        return qPlayer.PlayerData.job.name --[[@as string]]
     else
         return "police"
     end
@@ -287,6 +302,10 @@ function Player:getJobGrade()
         local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
         if not xPlayer then return end
         return xPlayer.getJob().grade --[[@as number]]
+    elseif _G.APIServer.QBCORE then
+        local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+        if not qPlayer then return end
+        return qPlayer.PlayerData.job.grade.level
     else
         return 0
     end
@@ -296,9 +315,13 @@ function Player:getName()
     if _G.APIServer.ESX then
         local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
         if not xPlayer then return end
-        return xPlayer.getName()
+        return xPlayer.getName() --[[@as string]]
+    elseif _G.APIServer.QBCORE then
+        local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+        if not qPlayer then return end
+        return (qPlayer.PlayerData.charinfo.firstname .. qPlayer.PlayerData.charinfo.lastname) --[[@as string]]
     else
-        return GetPlayerName(self.playerId)
+        return GetPlayerName(self.playerId) --[[@as string]]
     end
 end
 
@@ -313,6 +336,10 @@ function Player:setMoney(money)
             local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
             if not xPlayer then return end
             xPlayer.setMoney(money)
+        elseif _G.APIServer.QBCORE then
+            local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+            if not qPlayer then return end
+            qPlayer.Functions.SetMoney("money", money)
         else
 
         end
@@ -327,6 +354,10 @@ function Player:getMoney()
             local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
             if not xPlayer then return end
             return xPlayer.getMoney()
+        elseif _G.APIServer.QBCORE then
+            local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+            if not qPlayer then return end
+            return qPlayer.Functions.GetMoney("money")
         else
             return 0
         end
@@ -345,6 +376,10 @@ function Player:addMoney(amount)
             local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
             if not xPlayer then return end
             xPlayer.addMoney(amount)
+        elseif _G.APIServer.QBCORE then
+            local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+            if not qPlayer then return end
+            qPlayer.Functions.AddMoney("money", amount)
         else
 
         end
@@ -363,6 +398,10 @@ function Player:removeMoney(amount)
             local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
             if not xPlayer then return end
             xPlayer.removeMoney(amount)
+        elseif _G.APIServer.QBCORE then
+            local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+            if not qPlayer then return end
+            qPlayer.Functions.RemoveMoney("money", amount)
         else
 
         end
@@ -374,7 +413,11 @@ function Player:getAccount(accountName)
     if _G.APIServer.ESX then
         local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
         if not xPlayer then return end
-        return xPlayer.getAccount(accountName)
+        return xPlayer.getAccount(accountName).money --[[@as number]]
+    elseif _G.APIServer.QBCORE then
+        local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+        if not qPlayer then return end
+        return qPlayer.Functions.GetMoney("money") --[[@as number]]
     else
 
     end
@@ -393,6 +436,10 @@ function Player:addAccountMoney(accountName, amount)
             local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
             if not xPlayer then return end
             xPlayer.addAccountMoney(accountName, amount)
+        elseif _G.APIServer.QBCORE then
+            local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+            if not qPlayer then return end
+            qPlayer.Functions.SetMoney(accountName, amount)
         else
 
         end
@@ -412,6 +459,10 @@ function Player:removeAccountMoney(accountName, amount)
             local xPlayer = _G.APIServer.ESX.GetPlayerFromId(self.playerId)
             if not xPlayer then return end
             xPlayer.removeAccountMoney(accountName, amount)
+        elseif _G.APIServer.QBCORE then
+            local qPlayer = _G.APIServer.QBCORE.Functions.GetPlayer(self.playerId)
+            if not qPlayer then return end
+            qPlayer.Functions.RemoveMoney(accountName, amount)
         else
 
         end
